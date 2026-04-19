@@ -1,27 +1,11 @@
-// Vespa - App Module Build Configuration
-// Package: dev.vskelk.cdf
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.protobuf)
-}
-
-// KSP must run BEFORE KSP for Kotlin in this module
-androidComponents {
-    onVariants(selector().all()) { variant ->
-        afterEvaluate {
-            val v = variant.name.replaceFirstChar { it.uppercase() }
-            tasks.findByName("ksp${v}Kotlin")?.let { kspTask ->
-                tasks.findByName("generate${v}Proto")?.let { protoTask ->
-                    kspTask.dependsOn(protoTask)
-                }
-            }
-        }
-    }
 }
 
 android {
@@ -36,13 +20,9 @@ android {
         versionName = "2.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
         vectorDrawables {
             useSupportLibrary = true
-        }
-
-        // Room schema export
-        ksp {
-            arg("room.schemaLocation", "$projectDir/schemas")
         }
     }
 
@@ -55,6 +35,7 @@ android {
                 "proguard-rules.pro"
             )
         }
+
         debug {
             isMinifyEnabled = false
             applicationIdSuffix = ".debug"
@@ -75,10 +56,6 @@ android {
         buildConfig = true
     }
 
-    composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
-    }
-
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -86,13 +63,18 @@ android {
     }
 }
 
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
+
 protobuf {
     protoc {
-        artifact = "com.google.protobuf:protoc:${libs.versions.protobuf.get()}"
+        artifact = "com.google.protobuf:protoc:${libs.versions.protobufJava.get()}"
     }
+
     generateProtoTasks {
-        all().forEach { task ->
-            task.builtins {
+        all().configureEach {
+            builtins {
                 create("java") {
                     option("lite")
                 }
@@ -105,70 +87,60 @@ protobuf {
 }
 
 dependencies {
-    // Compose BOM - pinned to 2024.12.01 per spec
-    implementation(platform(androidx.compose.bom))
-    implementation(androidx.compose.ui)
-    implementation(androidx.compose.ui.graphics)
-    implementation(androidx.compose.ui.tooling.preview)
-    implementation(androidx.compose.material3)
-    implementation(androidx.compose.material.icons.extended)
-    implementation(androidx.compose.material3.adaptive.navsuite)
-    implementation(androidx.compose.runtime.livedata)
-    debugImplementation(androidx.compose.ui.tooling)
+    implementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(platform(libs.androidx.compose.bom))
 
-    // Core Android
-    implementation(androidx.core.ktx)
-    implementation(androidx.activity.compose)
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.graphics)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material.icons.extended)
+    implementation(libs.androidx.compose.material3.adaptive.navsuite)
+    implementation(libs.androidx.compose.runtime.livedata)
 
-    // Lifecycle
-    implementation(androidx.lifecycle.runtime.ktx)
-    implementation(androidx.lifecycle.viewmodel.compose)
-    implementation(androidx.lifecycle.runtime.compose)
+    debugImplementation(libs.androidx.compose.ui.tooling)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
 
-    // Navigation
-    implementation(androidx.navigation.compose)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.activity.compose)
 
-    // Room - FallbackToDestructiveMigration during development per spec
-    implementation(androidx.room.runtime)
-    implementation(androidx.room.ktx)
-    ksp(androidx.room.compiler)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
 
-    // DataStore
-    implementation(androidx.datastore)
-    implementation(androidx.datastore.preferences)
+    implementation(libs.androidx.navigation.compose)
 
-    // Protobuf for Proto DataStore
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+
+    implementation(libs.androidx.datastore)
+    implementation(libs.androidx.datastore.preferences)
+
     implementation(libs.protobuf.javalite)
     implementation(libs.protobuf.kotlin.lite)
 
-    // Hilt DI
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
 
-    // WorkManager + Hilt integration
-    implementation(libs.workmanager)
-    implementation(libs.hilt.work)
-    ksp(libs.hilt.work.compiler)
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.hilt.work)
+    ksp(libs.androidx.hilt.compiler)
 
-    // Networking
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging)
     implementation(libs.retrofit)
     implementation(libs.retrofit.kotlinx.serialization)
     implementation(libs.kotlinx.serialization.json)
 
-    // Coroutines
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
 
-    // Security for encrypted preferences
     implementation(libs.androidx.security.crypto)
 
-    // Testing
     testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.test.ext)
-    androidTestImplementation(platform(androidx.compose.bom))
-    androidTestImplementation(androidx.compose.ui.test.junit4)
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.kotlinx.coroutines.test)
 }
