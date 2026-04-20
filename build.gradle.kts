@@ -146,13 +146,3 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.kotlinx.coroutines.test)
 }
-
-// Candado blindado: Obligamos a KSP a esperar SOLO a las tareas principales de Proto
-afterEvaluate {
-    tasks.matching { it.name == "kspDebugKotlin" }.configureEach {
-        dependsOn("generateDebugProto")
-    }
-    tasks.matching { it.name == "kspReleaseKotlin" }.configureEach {
-        dependsOn("generateReleaseProto")
-    }
-}
