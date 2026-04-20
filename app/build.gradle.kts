@@ -59,7 +59,7 @@ android {
     }
 }
 
-// Bloque moderno para las opciones de Kotlin (reemplaza al kotlinOptions deprecado)
+// Opciones de Kotlin modernas
 kotlin {
     compilerOptions {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
@@ -72,7 +72,6 @@ ksp {
 
 protobuf {
     protoc {
-        // Se le agregó el .toString() para evitar el error de "receiver type mismatch"
         artifact = "com.google.protobuf:protoc:${libs.versions.protobufJava.get().toString()}"
     }
 
@@ -149,7 +148,9 @@ dependencies {
     androidTestImplementation(libs.kotlinx.coroutines.test)
 }
 
-// ⚡ EL CANDADO DE KSP: Obliga a KSP a esperar a que Protobuf termine de generar las clases
-tasks.withType<com.google.devtools.ksp.gradle.KspTaskJvm>().configureEach {
-    dependsOn(tasks.matching { it.name.startsWith("generate") && it.name.endsWith("Proto") })
+// ⚡ CORTE DE CAJA: Rompemos el ciclo infinito entre KSP, Protobuf y los Tests.
+tasks.configureEach {
+    if (name.startsWith("extractInclude") && name.contains("TestProto")) {
+        setDependsOn(emptyList<Any>())
+    }
 }
