@@ -8,9 +8,6 @@ import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/**
- * AdaptiveRepositoryImpl - Implementación del motor adaptativo
- */
 @Singleton
 class AdaptiveRepositoryImpl @Inject constructor(
     private val reactivoDao: ReactivoDao,
@@ -24,7 +21,6 @@ class AdaptiveRepositoryImpl @Inject constructor(
         modulo: String,
         examArea: String?
     ): List<ReactivoUI> {
-        // 1. Obtener subtemas débiles
         val weakMasteries = userMasteryDao.getWeakSubtemas(
             threshold = DomainState.Thresholds.PRECISION_DOMINADO,
             limit = 20
@@ -32,17 +28,14 @@ class AdaptiveRepositoryImpl @Inject constructor(
 
         val weakSubtemaIds = weakMasteries.map { it.subtemaId }
 
-        // 2. Si hay subtemas débiles, priorizar reactivos de esos
         val reactivos = if (weakSubtemaIds.isNotEmpty()) {
             reactivoDao.getReactivosBySubtemas(weakSubtemaIds, limit)
         } else {
-            // Si no hay historial, obtener reactivos aleatorios
             examArea?.let {
                 reactivoDao.getReactivosByModuloAndArea(modulo, it, limit)
             } ?: reactivoDao.getRandomActiveReactivos(limit)
         }
 
-        // 3. Convertir a UI models
         return reactivos.take(limit).mapNotNull { reactivo ->
             val opciones = reactivoDao.getOptionsForReactivo(reactivo.id)
             val fundamentos = normativeDao.getFragmentsForReactivo(reactivo.id).first()
@@ -103,7 +96,6 @@ class AdaptiveRepositoryImpl @Inject constructor(
         tiempoRespuestaMs: Long,
         errorType: String?
     ) {
-        // 1. Registrar intento
         val reactivo = reactivoDao.getReactivoById(reactivoId) ?: return
         val selectedOption = reactivoDao.getOptionById(selectedOptionId)
 
@@ -119,14 +111,12 @@ class AdaptiveRepositoryImpl @Inject constructor(
         )
         reactivoDao.insertIntento(intento)
 
-        // 2. Actualizar dominio del subtema
         userMasteryDao.recordAttemptAndUpdateMastery(
             subtemaId = reactivo.subtemaId,
             isCorrect = isCorrect,
             tiempoRespuestaMs = tiempoRespuestaMs
         )
 
-        // 3. Si hay error, registrar en gap log
         if (!isCorrect && errorType != null) {
             val gapLog = UserGapLogEntity(
                 subtemaId = reactivo.subtemaId,
@@ -157,7 +147,6 @@ class AdaptiveRepositoryImpl @Inject constructor(
         val precision = if (total > 0) correctos.toFloat() / total else 0f
         val tiempoPromedio = reactivoDao.getAverageTimeForSession(sessionId) ?: 0f
 
-        // Obtener subtemas débiles de esta sesión
         val weakSubtemas = intentos
             .filter { !it.isCorrect }
             .map { attempt ->
@@ -165,11 +154,14 @@ class AdaptiveRepositoryImpl @Inject constructor(
             }
             .filterNotNull()
             .distinct()
+            
+        // ⚡ CORREGIDO: Transformamos los Long a String para que cuadren con tu modelo de BD
+        val weakSubtemasStr = weakSubtemas.map { it.toString() }
 
-        // Obtener tipos de error dominantes
+        // ⚡ CORREGIDO: Forzamos a que el tipo de error no sea nulo al agrupar
         val errorCounts = intentos
             .filter { !it.isCorrect && it.errorType != null }
-            .groupBy { it.errorType }
+            .groupBy { it.errorType!! }
             .mapValues { it.value.size }
 
         val dominantErrors = errorCounts.entries
@@ -177,13 +169,12 @@ class AdaptiveRepositoryImpl @Inject constructor(
             .take(3)
             .map { it.key }
 
-        // Completar sesión en BD
         studySessionDao.completeSession(
             sessionId = sessionId,
             correctos = correctos,
             tiempoPromedioSeg = tiempoPromedio,
-            weakSubtemas = weakSubtemas.toList(),
-            dominantErrors = dominantErrors
+            weakSubtemas = weakSubtemasStr, // Lista limpia de Strings
+            dominantErrors = dominantErrors // Lista limpia de Strings sin nulos
         )
 
         val mensaje = when {
@@ -200,7 +191,7 @@ class AdaptiveRepositoryImpl @Inject constructor(
             incorrectos = incorrectos,
             precision = precision,
             tiempoPromedioSeg = tiempoPromedio,
-            subtemasDebiles = weakSubtemas.toList(),
+            subtemasDebiles = weakSubtemasStr, // Lista limpia de Strings
             tiposErrorFrecuentes = dominantErrors,
             mensaje = mensaje
         )
@@ -218,7 +209,6 @@ class AdaptiveRepositoryImpl @Inject constructor(
         return userMasteryDao.getMasteryByStates(DomainState.estadosDebiles.toList())
             .map { masteries ->
                 masteries.map { mastery ->
-                    // Esto necesita el nodo - simplificado por ahora
                     SubtemaConDominio(
                         subtema = dev.vskelk.cdf.core.domain.model.OntologyNode(
                             id = mastery.subtemaId,
@@ -259,3 +249,12 @@ class AdaptiveRepositoryImpl @Inject constructor(
         )
     }
 }
+
+// ⚡ CORREGIDO: Clase OverallStats agregada para que Kotlin deje de llorar por no encontrarla
+data class OverallStats(
+    val totalSesiones: Int,
+    val precisionGeneral: Float,
+    val subtemasDominados: Int,
+    val totalSubtemas: Int,
+    val brechasActivas: Int
+)
