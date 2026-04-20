@@ -14,13 +14,6 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/**
- * BootstrapRepositoryImpl - Implementación del repositorio de bootstrap
- *
- * Carga los datos seed desde archivos JSON en assets/seed/ hacia la base de datos Room.
- * Per spec: "La IA nunca escribe conocimiento canónico directamente."
- * El seed es conocimiento canónico validado provisto por el usuario.
- */
 @Singleton
 class BootstrapRepositoryImpl @Inject constructor(
     private val context: Context,
@@ -32,6 +25,12 @@ class BootstrapRepositoryImpl @Inject constructor(
 
     private val gson = Gson()
 
+    // ⚡ CORREGIDO: Se implementó la función obligatoria que pedía la interfaz
+    override suspend fun initialize() {
+        // Dispara la recolección del flow para forzar el bootstrap si es necesario
+        bootstrapState.first()
+    }
+
     override val bootstrapState: Flow<BootstrapState> = flow {
         emit(BootstrapState.Checking)
 
@@ -41,16 +40,13 @@ class BootstrapRepositoryImpl @Inject constructor(
             val needsSeeding = currentVersion != manifest.version || !meetsMinimumCounts(manifest)
 
             if (needsSeeding) {
-                // Ejecutar seeding real
                 emit(BootstrapState.Seeding("Iniciando carga de datos...", 0f))
 
                 loadSeedData { message, progress ->
                     emit(BootstrapState.Seeding(message, progress))
                 }
 
-                // Guardar versión aplicada
                 preferencesDataSource.setSeedVersionApplied(manifest.version)
-
                 emit(BootstrapState.Ready)
             } else {
                 emit(BootstrapState.Ready)
@@ -60,11 +56,8 @@ class BootstrapRepositoryImpl @Inject constructor(
         }
     }.flowOn(Dispatchers.IO)
 
-    /**
-     * Carga los datos de seed en la base de datos
-     */
-    private suspend fun loadSeedData(onProgress: (String, Float) -> Unit) = withContext(Dispatchers.IO) {
-        // 1. Cargar fuentes normativas
+    // ⚡ CORREGIDO: El lambda 'onProgress' ahora es 'suspend' para permitir usar 'emit' adentro
+    private suspend fun loadSeedData(onProgress: suspend (String, Float) -> Unit) = withContext(Dispatchers.IO) {
         onProgress("Cargando fuentes normativas...", 0.05f)
         val sources = loadNormativaSources()
         sources.forEach { source ->
@@ -80,7 +73,6 @@ class BootstrapRepositoryImpl @Inject constructor(
             )
         }
 
-        // 2. Cargar fragmentos normativos
         onProgress("Cargando fragmentos normativos...", 0.15f)
         val fragments = loadNormativaFragments()
         fragments.forEachIndexed { index, fragment ->
@@ -108,11 +100,9 @@ class BootstrapRepositoryImpl @Inject constructor(
             onProgress("Cargando fragmentos normativos... ${index + 1}/${fragments.size}", 0.15f + 0.2f * (index + 1) / fragments.size)
         }
 
-        // 3. Cargar nodos ontológicos
         onProgress("Cargando ontología...", 0.4f)
         val nodes = loadOntologiaNodes()
 
-        // Primero, crear el cargo VOE por defecto
         ontologyDao.insertCargo(
             CargoEntity(
                 id = 1,
@@ -124,7 +114,6 @@ class BootstrapRepositoryImpl @Inject constructor(
             )
         )
 
-        // Insertar órganos básicos
         ontologyDao.insertOrgano(
             OrganoEntity(
                 id = 1,
@@ -144,7 +133,6 @@ class BootstrapRepositoryImpl @Inject constructor(
             )
         )
 
-        // Insertar nodos ontológicos
         nodes.forEachIndexed { index, node ->
             val nodeType = when (node.node_type.uppercase()) {
                 "CARGO" -> OntologyNodeTypes.CARGO
@@ -174,7 +162,6 @@ class BootstrapRepositoryImpl @Inject constructor(
             onProgress("Cargando ontología... ${index + 1}/${nodes.size}", 0.4f + 0.2f * (index + 1) / nodes.size)
         }
 
-        // 4. Cargar relaciones ontológicas
         onProgress("Cargando relaciones ontológicas...", 0.65f)
         val edges = loadOntologiaEdges()
         edges.forEachIndexed { index, edge ->
@@ -189,7 +176,6 @@ class BootstrapRepositoryImpl @Inject constructor(
             onProgress("Cargando relaciones... ${index + 1}/${edges.size}", 0.65f + 0.1f * (index + 1) / edges.size)
         }
 
-        // 5. Cargar reactivos con opciones
         onProgress("Cargando reactivos...", 0.8f)
         val reactivos = loadReactivos()
         reactivos.forEachIndexed { index, reactivo ->
@@ -216,7 +202,6 @@ class BootstrapRepositoryImpl @Inject constructor(
             )
             reactivoDao.insertReactivo(reactivoEntity)
 
-            // Insertar opciones del reactivo
             val opciones = reactivo.options.mapIndexed { optIndex, option ->
                 ReactivoOptionEntity(
                     id = option.id,
@@ -230,7 +215,6 @@ class BootstrapRepositoryImpl @Inject constructor(
             }
             reactivoDao.insertOptions(opciones)
 
-            // Crear cross-reference con fragmentos normativos
             reactivo.fundamento_id?.let { fragId ->
                 normativeDao.insertReactivoFragmentCrossRef(
                     ReactivoFragmentCrossRef(
@@ -247,8 +231,6 @@ class BootstrapRepositoryImpl @Inject constructor(
         onProgress("Carga completada", 1.0f)
     }
 
-    // ===== MÉTODOS DE CARGA DE JSON =====
-
     private inline fun <reified T> parseJsonFile(filename: String): T {
         val json = context.assets.open("seed/$filename")
             .bufferedReader()
@@ -264,46 +246,24 @@ class BootstrapRepositoryImpl @Inject constructor(
     }
 
     private fun loadNormativaSources(): List<SeedNormativaSource> {
-        return try {
-            parseJsonFile("normativa_sources.json")
-        } catch (e: Exception) {
-            emptyList()
-        }
+        return try { parseJsonFile("normativa_sources.json") } catch (e: Exception) { emptyList() }
     }
 
     private fun loadNormativaFragments(): List<SeedNormativaFragment> {
-        return try {
-            parseJsonFile("normativa_fragments.json")
-        } catch (e: Exception) {
-            emptyList()
-        }
+        return try { parseJsonFile("normativa_fragments.json") } catch (e: Exception) { emptyList() }
     }
 
     private fun loadOntologiaNodes(): List<SeedOntologiaNode> {
-        return try {
-            parseJsonFile("ontologia.json")
-        } catch (e: Exception) {
-            emptyList()
-        }
+        return try { parseJsonFile("ontologia.json") } catch (e: Exception) { emptyList() }
     }
 
     private fun loadOntologiaEdges(): List<SeedOntologiaEdge> {
-        return try {
-            parseJsonFile("ontologia_edges.json")
-        } catch (e: Exception) {
-            emptyList()
-        }
+        return try { parseJsonFile("ontologia_edges.json") } catch (e: Exception) { emptyList() }
     }
 
     private fun loadReactivos(): List<SeedReactivo> {
-        return try {
-            parseJsonFile("reactivos.json")
-        } catch (e: Exception) {
-            emptyList()
-        }
+        return try { parseJsonFile("reactivos.json") } catch (e: Exception) { emptyList() }
     }
-
-    // ===== IMPLEMENTACIÓN DE INTERFAZ =====
 
     override suspend fun needsSeeding(): Boolean {
         val manifest = getManifestJson()
