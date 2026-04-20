@@ -9,7 +9,6 @@ import dagger.hilt.components.SingletonComponent
 import dev.vskelk.cdf.core.datastore.CipherService
 import dev.vskelk.cdf.core.datastore.PreferencesDataSource
 import dev.vskelk.cdf.core.datastore.UserPreferencesSerializer
-import dev.vskelk.cdf.core.datastore.proto.UserPreferences
 import javax.inject.Singleton
 
 /**
@@ -33,10 +32,7 @@ object DataStoreModule {
     fun provideUserPreferencesSerializer(): UserPreferencesSerializer =
         UserPreferencesSerializer()
 
-    // ⚡ EL TOQUE EXCEPCIONAL: 
-    // Eliminamos 'provideUserPreferencesParser()'. 
-    // En su lugar, le pasamos 'UserPreferences.parser()' directamente al DataSource.
-    // Así evitamos que KSP intente resolver el tipo genérico y falle.
+    // ⚡ Construimos el DataSource limpio, solo con Context y CipherService.
     @Provides
     @Singleton
     fun providePreferencesDataSource(
@@ -44,7 +40,6 @@ object DataStoreModule {
         cipherService: CipherService
     ): PreferencesDataSource = PreferencesDataSource(
         context, 
-        cipherService, 
-        UserPreferences.parser()
+        cipherService
     )
 }
