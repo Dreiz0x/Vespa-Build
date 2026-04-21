@@ -52,10 +52,4 @@ jobs:
             app/build/reports/
           retention-days: 7
 
-      - name: AI CI Healer
-        if: failure()
-        uses: mariorazo97/ai-ci-healer@v1
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          llm-provider: "groq"
-          groq-api-key: ${{ secrets.GROQ_API_KEY }}
+    
