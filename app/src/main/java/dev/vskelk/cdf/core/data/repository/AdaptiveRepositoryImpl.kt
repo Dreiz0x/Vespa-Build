@@ -80,10 +80,13 @@ class AdaptiveRepositoryImpl @Inject constructor(
         val precision = if (total > 0) correctos.toFloat() / total else 0f
         val tiempoPromedio = reactivoDao.getAverageTimeForSession(sessionId) ?: 0f
 
-        // ⚡ CORREGIDO: Casting explícito a List<Long>
+        // ⚡ CASTING ESTRICTO A Long PARA EVITAR LA INFERENCIA GENÉRICA DE KOTLIN
         val weakSubtemas: List<Long> = intentos
             .filter { !it.isCorrect }
-            .mapNotNull { attempt -> reactivoDao.getReactivoById(attempt.reactivoId)?.subtemaId }
+            .mapNotNull { attempt -> 
+                val reactivo = reactivoDao.getReactivoById(attempt.reactivoId)
+                reactivo?.subtemaId?.toLong()
+            }
             .distinct()
             
         val errorCounts = intentos.filter { !it.isCorrect && it.errorType != null }.groupBy { it.errorType!! }.mapValues { it.value.size }
@@ -115,21 +118,3 @@ class AdaptiveRepositoryImpl @Inject constructor(
                     estadoDominio = mastery.estadoDominio, precision = mastery.precision, totalIntentos = mastery.totalIntentos, velocidadPromedio = mastery.velocidadPromedio
                 )
             }
-        }
-    }
-
-    override suspend fun getFrequentErrorTypes(limit: Int): List<Pair<String, Int>> = userMasteryDao.getGlobalErrorTypeCounts(limit).map { it.errorType to it.count }
-
-    override suspend fun getOverallStats(): OverallStats {
-        val sessionCount = studySessionDao.getCompletedSessionCount()
-        val overallAccuracy = studySessionDao.getOverallAccuracy() ?: 0f
-        val dominadoCount = userMasteryDao.getMasteryByState(DomainState.DOMINADO).first().size
-        val totalMastery = userMasteryDao.getMasteryCount()
-        val brechaCount = userMasteryDao.observeAffectedSubtemaCount().first()
-
-        return OverallStats(
-            totalSesiones = sessionCount, precisionGeneral = overallAccuracy,
-            subtemasDominados = dominadoCount, totalSubtemas = totalMastery, brechasActivas = brechaCount
-        )
-    }
-}
