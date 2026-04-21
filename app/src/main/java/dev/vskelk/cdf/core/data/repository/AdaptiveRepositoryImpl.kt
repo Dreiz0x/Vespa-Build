@@ -80,20 +80,25 @@ class AdaptiveRepositoryImpl @Inject constructor(
         val precision = if (total > 0) correctos.toFloat() / total else 0f
         val tiempoPromedio = reactivoDao.getAverageTimeForSession(sessionId) ?: 0f
 
-        val weakSubtemas = intentos.filter { !it.isCorrect }.mapNotNull { attempt -> reactivoDao.getReactivoById(attempt.reactivoId)?.subtemaId }.distinct()
+        // ⚡ CORREGIDO: Casting explícito a List<Long>
+        val weakSubtemas: List<Long> = intentos
+            .filter { !it.isCorrect }
+            .mapNotNull { attempt -> reactivoDao.getReactivoById(attempt.reactivoId)?.subtemaId }
+            .distinct()
+            
         val errorCounts = intentos.filter { !it.isCorrect && it.errorType != null }.groupBy { it.errorType!! }.mapValues { it.value.size }
         val dominantErrors = errorCounts.entries.sortedByDescending { it.value }.take(3).map { it.key }
 
         studySessionDao.completeSession(
             sessionId = sessionId, correctos = correctos, tiempoPromedioSeg = tiempoPromedio,
-            weakSubtemas = weakSubtemas, // List<Long> pura
+            weakSubtemas = weakSubtemas,
             dominantErrors = dominantErrors
         )
 
         return SesionResultado(
             sessionId = sessionId, totalReactivos = total, correctos = correctos, incorrectos = incorrectos,
             precision = precision, tiempoPromedioSeg = tiempoPromedio,
-            subtemasDebiles = weakSubtemas.map { it.toString() }, // UI ocupa String
+            subtemasDebiles = weakSubtemas.map { it.toString() },
             tiposErrorFrecuentes = dominantErrors,
             mensaje = if (precision >= 0.8f) "¡Excelente!" else "A repasar."
         )
