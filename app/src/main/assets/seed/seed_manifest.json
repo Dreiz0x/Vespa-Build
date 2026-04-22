@@ -1,0 +1,14 @@
+{
+    "version": "1.0.0",
+    "minReactivos": 10,
+    "minNormativa": 8,
+    "minOntologia": 30,
+    "descripcion": "Seed v1.0.0 - 10 reactivos VOE, 30 nodos ontológicos, 8 fragmentos normativos. Fuentes: LEGIPE Arts. 72, 73, 255, 256",
+    "archivos": {
+        "normativa_sources": "normativa_sources.json",
+        "normativa_fragments": "normativa_fragments.json",
+        "ontologia_nodes": "ontologia.json",
+        "ontologia_edges": "ontologia_edges.json",
+        "reactivos": "reactivos.json"
+    }
+}

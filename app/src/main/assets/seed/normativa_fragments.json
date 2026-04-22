@@ -1,0 +1,98 @@
+[
+    {
+        "id": 1,
+        "source_id": 1,
+        "version_id": 1,
+        "article_ref": "Art. 72",
+        "citation_text": "La Vocalía de Organización Electoral concorrirá con voz pero sin voto a las sesiones del Consejo Distrital.",
+        "content": "La Vocalía de Organización Electoral (VOE) forma parte de la Junta Distrital Ejecutiva. Concurrirá con voz pero sin voto a las sesiones del Consejo Distrital.",
+        "vigencia_desde": 1704067200000,
+        "vigencia_hasta": null,
+        "status": "VIGENTE",
+        "replaced_by_id": null
+    },
+    {
+        "id": 2,
+        "source_id": 1,
+        "version_id": 1,
+        "article_ref": "Art. 73",
+        "citation_text": null,
+        "content": "El Vocal de Organización Electoral tiene como atribución principal instrumentar el procedimiento de ubicación, instalación y integración de Mesas Directivas de Casilla.",
+        "vigencia_desde": 1704067200000,
+        "vigencia_hasta": null,
+        "status": "VIGENTE",
+        "replaced_by_id": null
+    },
+    {
+        "id": 3,
+        "source_id": 1,
+        "version_id": 1,
+        "article_ref": "Art. 255",
+        "citation_text": null,
+        "content": "Los locales donde se instalen las casillas electorales deben cumplir los siguientes requisitos: acceso libre para todo público, iluminación adecuada, ventilación y condiciones que garanticen el secreto del voto.",
+        "vigencia_desde": 1704067200000,
+        "vigencia_hasta": null,
+        "status": "VIGENTE",
+        "replaced_by_id": null
+    },
+    {
+        "id": 4,
+        "source_id": 1,
+        "version_id": 1,
+        "article_ref": "Art. 256",
+        "citation_text": null,
+        "content": "El procedimiento de ubicación de casillas inicia entre el 15 de enero y el 15 de febrero del año de la elección. La VOE gestiona las anuencias y captura en el SUC.",
+        "vigencia_desde": 1704067200000,
+        "vigencia_hasta": null,
+        "status": "VIGENTE",
+        "replaced_by_id": null
+    },
+    {
+        "id": 5,
+        "source_id": 1,
+        "version_id": 1,
+        "article_ref": "Art. 303",
+        "citation_text": null,
+        "content": "Los Supervisores Electorales (SE) y Capacitadores Asistentes Electorales (CAE) son el personal temporal de campo fundamental para la organización electoral.",
+        "vigencia_desde": 1704067200000,
+        "vigencia_hasta": null,
+        "status": "VIGENTE",
+        "replaced_by_id": null
+    },
+    {
+        "id": 6,
+        "source_id": 3,
+        "version_id": 1,
+        "article_ref": "Art. 47",
+        "citation_text": null,
+        "content": "El Vocal de Organización Electoral tiene entre sus funciones: apoyar la supervisión y evaluación de la instalación, integración y funcionamiento de las Mesas Directivas de Casilla.",
+        "vigencia_desde": 1704067200000,
+        "vigencia_hasta": null,
+        "status": "VIGENTE",
+        "replaced_by_id": null
+    },
+    {
+        "id": 7,
+        "source_id": 2,
+        "version_id": 1,
+        "article_ref": "SUC",
+        "citation_text": null,
+        "content": "El Sistema de Ubicación de Casillas (SUC) es la plataforma informática operada desde la Junta Distrital para capturar la información de los inmuebles propuestos para casillas.",
+        "vigencia_desde": 1704067200000,
+        "vigencia_hasta": null,
+        "status": "VIGENTE",
+        "replaced_by_id": null
+    },
+    {
+        "id": 8,
+        "source_id": 2,
+        "version_id": 1,
+        "article_ref": "SIJE",
+        "citation_text": null,
+        "content": "El Sistema de Información sobre el Desarrollo de la Jornada Electoral (SIJE) es la plataforma que la VOE opera para informar a los Consejos sobre la instalación de casillas y la presencia del personal electoral.",
+        "vigencia_desde": 1704067200000,
+        "vigencia_hasta": null,
+        "status": "VIGENTE",
+        "replaced_by_id": null
+    }
+]

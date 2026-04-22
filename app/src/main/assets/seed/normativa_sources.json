@@ -1,0 +1,29 @@
+[
+    {
+        "id": 1,
+        "code": "LEGIPE",
+        "name": "Ley General de Instituciones y Procedimientos Electorales",
+        "type": "LEY",
+        "version": "2024",
+        "active_since": 1704067200000,
+        "status": "VIGENTE"
+    },
+    {
+        "id": 2,
+        "code": "REGLAMENTO_ELECCIONES",
+        "name": "Reglamento de Elecciones del INE",
+        "type": "REGLAMENTO",
+        "version": "2024",
+        "active_since": 1704067200000,
+        "status": "VIGENTE"
+    },
+    {
+        "id": 3,
+        "code": "REGLAMENTO_INTERIOR",
+        "name": "Reglamento Interior del INE",
+        "type": "REGLAMENTO",
+        "version": "2024",
+        "active_since": 1704067200000,
+        "status": "VIGENTE"
+    }
+]
