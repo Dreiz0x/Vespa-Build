@@ -154,7 +154,6 @@ class AdaptiveRepositoryImpl @Inject constructor(
             }
         }
 
-        // Tipo explícito forzado para la base de datos
         val distinctWeakSubtemas: List<Long> = weakSubtemasRaw.distinct()
 
         val sortedErrors = errorCountsMap.entries.sortedByDescending { it.value }.take(3)
@@ -171,11 +170,6 @@ class AdaptiveRepositoryImpl @Inject constructor(
             dominantErrors = dominantErrors
         )
 
-        val weakSubtemasStr = mutableListOf<String>()
-        for (id in distinctWeakSubtemas) {
-            weakSubtemasStr.add(id.toString())
-        }
-
         return SesionResultado(
             sessionId = sessionId,
             totalReactivos = total,
@@ -183,7 +177,7 @@ class AdaptiveRepositoryImpl @Inject constructor(
             incorrectos = incorrectos,
             precision = precision,
             tiempoPromedioSeg = tiempoPromedio,
-            subtemasDebiles = weakSubtemasStr,
+            subtemasDebiles = distinctWeakSubtemas,
             tiposErrorFrecuentes = dominantErrors,
             mensaje = if (precision >= 0.8f) "¡Excelente!" else "A repasar."
         )
