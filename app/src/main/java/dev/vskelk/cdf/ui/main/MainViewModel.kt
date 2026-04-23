@@ -76,7 +76,8 @@ class MainViewModel @Inject constructor(
             adaptiveRepository.observeRecentSessions(5).collect { sessions ->
                 _uiState.update { state ->
                     state.copy(recientes = sessions.map { s -> 
-                        SessionSummary(it.id, it.correctos, it.totalReactivos, it.modulo) 
+                        // ⚡ CORREGIDO: Usando 's' en lugar de 'it'
+                        SessionSummary(s.id, s.correctos, s.totalReactivos, s.modulo) 
                     })
                 }
             }
