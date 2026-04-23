@@ -4,16 +4,6 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerialName
 
 @Serializable
-data class SeedManifest(
-    @SerialName("version") val version: String,
-    @SerialName("minReactivos") val minReactivos: Int,
-    @SerialName("minNormativa") val minNormativa: Int,
-    @SerialName("minOntologia") val minOntologia: Int,
-    @SerialName("descripcion") val descripcion: String,
-    @SerialName("archivos") val archivos: Map<String, String>
-)
-
-@Serializable
 data class SeedNormativaSource(
     val id: Long, val code: String, val name: String, val type: String, 
     val version: String, val active_since: Long, val status: String
