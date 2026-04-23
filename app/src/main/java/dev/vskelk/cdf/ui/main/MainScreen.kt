@@ -1,7 +1,6 @@
 package dev.vskelk.cdf.ui.main
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -22,14 +21,6 @@ import dev.vskelk.cdf.ui.theme.*
 
 /**
  * MainScreen - Pantalla principal
- *
- * Per spec:
- * - TopAppBar: "Vespa", Barlow SemiBold 18sp
- * - Estado del corpus con toggle offline
- * - Fila de módulos: Simulador, Diagnóstico, Entrevista
- * - Chips de resumen
- * - Campo consulta
- * - Resultados recientes
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,9 +30,13 @@ fun MainScreen(
     onNavigateToInterview: () -> Unit,
     onNavigateToInvestigator: () -> Unit,
     onNavigateToQuarantine: () -> Unit,
+    onNavigateToSettings: () -> Unit, // ⚡ Parámetro nuevo para Settings
     viewModel: MainViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    
+    // ⚡ ESTO REVIVE TU TEXTFIELD. Ahora guarda lo que escribes.
+    var searchQuery by remember { mutableStateOf("") }
 
     Scaffold(
         topBar = {
@@ -57,6 +52,14 @@ fun MainScreen(
                     titleContentColor = VespaOnSurface
                 ),
                 actions = {
+                    // Botón de Settings ⚡
+                    IconButton(onClick = onNavigateToSettings) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = "Settings",
+                            tint = VespaOnSurfaceMid
+                        )
+                    }
                     // Toggle Offline
                     IconButton(onClick = { /* TODO */ }) {
                         Icon(
@@ -130,7 +133,6 @@ fun MainScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.padding(vertical = 8.dp)
                 ) {
-                    // Progreso general - chip relleno
                     AssistChip(
                         onClick = { },
                         label = {
@@ -150,7 +152,6 @@ fun MainScreen(
                         )
                     )
 
-                    // Brechas detectadas - chip con warning si > 0
                     if (uiState.brechasDetectadas > 0) {
                         AssistChip(
                             onClick = { },
@@ -174,11 +175,11 @@ fun MainScreen(
                 }
             }
 
-            // Campo de consulta
+            // Campo de consulta ⚡
             item {
                 OutlinedTextField(
-                    value = "",
-                    onValueChange = { },
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
                     placeholder = {
                         Text(
                             text = "Consulta al motor experto...",
@@ -194,7 +195,14 @@ fun MainScreen(
                         unfocusedTextColor = VespaOnSurface
                     ),
                     trailingIcon = {
-                        IconButton(onClick = { }) {
+                        IconButton(
+                            onClick = { 
+                                // TODO: Aquí conectaremos el caso de uso del Investigador
+                                if(searchQuery.isNotBlank()) {
+                                    // searchQuery = "" // Limpiar si quieres
+                                }
+                            }
+                        ) {
                             Icon(
                                 Icons.Default.Send,
                                 contentDescription = "Enviar",
@@ -346,7 +354,6 @@ private fun SessionCard(session: SessionSummary) {
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Indicador de color izquierdo
             Box(
                 modifier = Modifier
                     .width(4.dp)
