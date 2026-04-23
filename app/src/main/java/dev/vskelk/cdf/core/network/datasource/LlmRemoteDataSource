@@ -2,15 +2,11 @@ package dev.vskelk.cdf.core.network.datasource
 
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.content
-import com.google.ai.client.generativeai.type.blob
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/**
- * LlmRemoteDataSource - Interfaz multi-proveedor para LLMs
- */
 interface LlmRemoteDataSource {
     suspend fun sendMessage(
         apiKey: String,
@@ -19,9 +15,6 @@ interface LlmRemoteDataSource {
     ): Result<String>
 }
 
-/**
- * Implementación nativa para Gemini 1.5 Pro
- */
 @Singleton
 class GeminiRemoteDataSource @Inject constructor() : LlmRemoteDataSource {
 
@@ -39,7 +32,8 @@ class GeminiRemoteDataSource @Inject constructor() : LlmRemoteDataSource {
             val response = if (pdfBytes != null) {
                 generativeModel.generateContent(
                     content {
-                        blob("application/pdf", pdfBytes)
+                        // En versiones ≥0.15.0 se usa 'data' en lugar de 'blob'
+                        data("application/pdf", pdfBytes)
                         text(prompt)
                     }
                 )
