@@ -3,13 +3,12 @@ package dev.vskelk.cdf.ui.main
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue // ⚡ FIX: Necesario para el delegado 'by'
+import androidx.compose.runtime.setValue // ⚡ FIX: Necesario para el delegado 'by'
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -21,9 +20,7 @@ import dev.vskelk.cdf.ui.theme.*
 fun MainScreen(
     onNavigateToSimulator: () -> Unit,
     onNavigateToDiagnosis: () -> Unit,
-    onNavigateToInterview: () -> Unit,
     onNavigateToInvestigator: () -> Unit,
-    onNavigateToQuarantine: () -> Unit,
     onNavigateToSettings: () -> Unit,
     viewModel: MainViewModel = hiltViewModel()
 ) {
@@ -39,20 +36,8 @@ fun MainScreen(
                     titleContentColor = VespaOnSurface
                 ),
                 actions = {
-                    // ✅ AHORA SÍ: Settings conectado correctamente
                     IconButton(onClick = onNavigateToSettings) {
-                        Icon(
-                            Icons.Default.Settings,
-                            contentDescription = "Configuración",
-                            tint = VespaOnSurfaceMid
-                        )
-                    }
-                    IconButton(onClick = { /* Toggle offline mode */ }) {
-                        Icon(
-                            Icons.Default.CloudOff,
-                            contentDescription = "Modo offline",
-                            tint = VespaOnSurfaceMid
-                        )
+                        Icon(Icons.Default.Settings, contentDescription = "Settings", tint = VespaOnSurfaceMid)
                     }
                 }
             )
@@ -66,127 +51,71 @@ fun MainScreen(
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Card de estado del corpus
             item {
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = VespaSurface),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column {
-                            Text(
-                                text = "Corpus v${uiState.corpusVersion}",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = VespaOnSurface
-                            )
-                            if (uiState.pendientesInvestigador > 0) {
-                                Text(
-                                    text = "${uiState.pendientesInvestigador} pendientes",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = VespaWarning
-                                )
-                            }
-                        }
-                        Icon(
-                            Icons.Default.CheckCircle,
-                            contentDescription = null,
-                            tint = VespaSuccess,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
+                CorpusStatusCard(uiState.corpusVersion, uiState.pendientesInvestigador)
+            }
+
+            item {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    ModuleCard("Simulador", Icons.Default.Quiz, onNavigateToSimulator, Modifier.weight(1f))
+                    ModuleCard("Diagnóstico", Icons.Default.Analytics, onNavigateToDiagnosis, Modifier.weight(1f))
                 }
             }
 
-            // Botones Simulador y Diagnóstico
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Button(
-                        onClick = onNavigateToSimulator,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text("Simulador")
-                    }
-                    Button(
-                        onClick = onNavigateToDiagnosis,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text("Diagnóstico")
-                    }
-                }
-            }
-
-            // Campo de búsqueda con ícono de enviar
             item {
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
-                    placeholder = { Text("Consulta al motor experto...", color = VespaOnSurfaceLow) },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = VespaOutline,
-                        unfocusedBorderColor = VespaOutline,
-                        focusedTextColor = VespaOnSurface,
-                        unfocusedTextColor = VespaOnSurface
-                    ),
-                    trailingIcon = {
-                        IconButton(onClick = { /* Buscar */ }) {
-                            Icon(
-                                Icons.Default.Send,
-                                contentDescription = "Enviar",
-                                tint = VespaOnSurfaceMid
-                            )
-                        }
-                    },
-                    shape = RoundedCornerShape(12.dp)
+                    placeholder = { Text("Consulta al experto...", color = VespaOnSurfaceLow) },
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
 
-            // Botón Investigador
             item {
-                OutlinedButton(
-                    onClick = onNavigateToInvestigator,
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = VespaOnSurface)
-                ) {
-                    Icon(
-                        Icons.Default.Search,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Investigador")
+                Button(onClick = onNavigateToInvestigator, modifier = Modifier.fillMaxWidth()) {
+                    Text("Abrir Investigador")
                 }
             }
 
-            // Sección de resultados recientes
             if (uiState.recientes.isNotEmpty()) {
-                item {
-                    Text(
-                        "Resultados Recientes",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = VespaOnSurfaceMid
-                    )
-                }
+                item { Text("Sesiones Recientes", color = VespaOnSurfaceMid) }
                 items(uiState.recientes) { session ->
-                    Card(
-                        colors = CardDefaults.cardColors(containerColor = VespaSurface),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Row(modifier = Modifier.padding(16.dp)) {
-                            Text("Sesión · ${session.modulo}", color = VespaOnSurface)
-                        }
-                    }
+                    SessionCard(session)
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun CorpusStatusCard(version: String, pending: Int) {
+    Card(colors = CardDefaults.cardColors(containerColor = VespaSurface)) {
+        Row(modifier = Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+            Column {
+                Text("Corpus v$version", color = VespaOnSurface)
+                if (pending > 0) Text("$pending pendientes", color = VespaWarning, style = MaterialTheme.typography.bodySmall)
+            }
+            Icon(Icons.Default.CheckCircle, null, tint = VespaSuccess)
+        }
+    }
+}
+
+@Composable
+private fun ModuleCard(title: String, icon: androidx.compose.ui.graphics.vector.ImageVector, onClick: () -> Unit, modifier: Modifier) {
+    Card(onClick = onClick, modifier = modifier, colors = CardDefaults.cardColors(containerColor = VespaSurface)) {
+        Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Icon(icon, null, tint = VespaPrimary)
+            Text(title, color = VespaOnSurface, style = MaterialTheme.typography.labelMedium)
+        }
+    }
+}
+
+@Composable
+private fun SessionCard(session: SessionSummary) {
+    Card(colors = CardDefaults.cardColors(containerColor = VespaSurface), modifier = Modifier.fillMaxWidth()) {
+        Row(modifier = Modifier.padding(16.dp)) {
+            Text("Sesión · ${session.modulo}", color = VespaOnSurface, modifier = Modifier.weight(1f))
+            Text("${session.correctos}/${session.total}", color = VespaOnSurfaceMid)
         }
     }
 }
