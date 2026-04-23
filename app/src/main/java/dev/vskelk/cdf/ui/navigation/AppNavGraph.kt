@@ -11,32 +11,14 @@ import dev.vskelk.cdf.ui.diagnosis.DiagnosisScreen
 import dev.vskelk.cdf.ui.interview.InterviewScreen
 import dev.vskelk.cdf.ui.investigator.InvestigatorScreen
 import dev.vskelk.cdf.ui.quarantine.QuarantineScreen
-import dev.vskelk.cdf.ui.settings.SettingsScreen // ⚡ El import de tu nueva pantalla
+import dev.vskelk.cdf.ui.settings.SettingsScreen
 
-/**
- * AppNavGraph - Grafo de navegación principal
- */
 @Composable
-fun AppNavGraph(
-    navController: NavHostController,
-    startDestination: String = Routes.SPLASH
-) {
-    NavHost(
-        navController = navController,
-        startDestination = startDestination
-    ) {
-        // Splash
+fun AppNavGraph(navController: NavHostController, startDestination: String = Routes.SPLASH) {
+    NavHost(navController = navController, startDestination = startDestination) {
         composable(Routes.SPLASH) {
-            SplashScreen(
-                onNavigateToMain = {
-                    navController.navigate(Routes.MAIN) {
-                        popUpTo(Routes.SPLASH) { inclusive = true }
-                    }
-                }
-            )
+            SplashScreen(onNavigateToMain = { navController.navigate(Routes.MAIN) { popUpTo(Routes.SPLASH) { inclusive = true } } })
         }
-
-        // Main
         composable(Routes.MAIN) {
             MainScreen(
                 onNavigateToSimulator = { navController.navigate(Routes.SIMULATOR) },
@@ -44,42 +26,14 @@ fun AppNavGraph(
                 onNavigateToInterview = { navController.navigate(Routes.INTERVIEW) },
                 onNavigateToInvestigator = { navController.navigate(Routes.INVESTIGATOR) },
                 onNavigateToQuarantine = { navController.navigate(Routes.QUARANTINE) },
-                // ⚡ Le pasamos la función para abrir Settings
                 onNavigateToSettings = { navController.navigate(Routes.SETTINGS) } 
             )
         }
-
-        // Simulator
-        composable(Routes.SIMULATOR) {
-            SimulatorScreen(onNavigateBack = { navController.popBackStack() })
-        }
-
-        // Diagnosis
-        composable(Routes.DIAGNOSIS) {
-            DiagnosisScreen(
-                onNavigateBack = { navController.popBackStack() },
-                onNavigateToInvestigator = { navController.navigate(Routes.INVESTIGATOR) }
-            )
-        }
-
-        // Interview
-        composable(Routes.INTERVIEW) {
-            InterviewScreen(onNavigateBack = { navController.popBackStack() })
-        }
-
-        // Investigator
-        composable(Routes.INVESTIGATOR) {
-            InvestigatorScreen(onNavigateBack = { navController.popBackStack() })
-        }
-
-        // Quarantine
-        composable(Routes.QUARANTINE) {
-            QuarantineScreen(onNavigateBack = { navController.popBackStack() })
-        }
-
-        // ⚡ AQUÍ ENCHUFA LA PANTALLA DE SETTINGS
-        composable(Routes.SETTINGS) {
-            SettingsScreen(onNavigateBack = { navController.popBackStack() })
-        }
+        composable(Routes.SIMULATOR) { SimulatorScreen(onNavigateBack = { navController.popBackStack() }) }
+        composable(Routes.DIAGNOSIS) { DiagnosisScreen(onNavigateBack = { navController.popBackStack() }, onNavigateToInvestigator = { navController.navigate(Routes.INVESTIGATOR) }) }
+        composable(Routes.INTERVIEW) { InterviewScreen(onNavigateBack = { navController.popBackStack() }) }
+        composable(Routes.INVESTIGATOR) { InvestigatorScreen(onNavigateBack = { navController.popBackStack() }) }
+        composable(Routes.QUARANTINE) { QuarantineScreen(onNavigateBack = { navController.popBackStack() }) }
+        composable(Routes.SETTINGS) { SettingsScreen(onNavigateBack = { navController.popBackStack() }) }
     }
 }
