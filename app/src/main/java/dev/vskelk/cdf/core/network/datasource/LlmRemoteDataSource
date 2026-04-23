@@ -2,6 +2,7 @@ package dev.vskelk.cdf.core.network.datasource
 
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.content
+import com.google.ai.client.generativeai.type.generationConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -16,10 +17,27 @@ interface LlmRemoteDataSource {
         prompt: String,
         pdfBytes: ByteArray? = null
     ): Result<String>
+
+    /**
+     * Envía un mensaje con salida JSON estructurada estricta
+     * @param jsonSchema Esquema JSON esperado como respuesta
+     */
+    suspend fun sendMessageWithJsonResponse(
+        apiKey: String,
+        prompt: String,
+        pdfBytes: ByteArray? = null,
+        jsonSchema: String
+    ): Result<String>
 }
 
 /**
  * Implementación nativa para Gemini 1.5 Pro
+ * 
+ * Capacidades:
+ * - Visión multimodal (PDF como imágenes página por página)
+ * - Contexto largo (hasta 2M tokens con Gemini 1.5 Pro)
+ * - Extracción de tablas desde imágenes
+ * - Salida JSON estructurada estricta
  */
 @Singleton
 class GeminiRemoteDataSource @Inject constructor() : LlmRemoteDataSource {
@@ -32,18 +50,26 @@ class GeminiRemoteDataSource @Inject constructor() : LlmRemoteDataSource {
         try {
             val generativeModel = GenerativeModel(
                 modelName = "gemini-1.5-pro",
-                apiKey = apiKey
+                apiKey = apiKey,
+                generationConfig = generationConfig {
+                    temperature = 0.2f
+                    topK = 40
+                    topP = 0.95f
+                    maxOutputTokens = 8192
+                    responseMimeType = "application/json"
+                }
             )
 
             val response = if (pdfBytes != null) {
                 generativeModel.generateContent(
                     content {
-                        data("application/pdf", pdfBytes)
-                        text(prompt)
+                        // Visión multimodal: PDF como imagen
+                        image("application/pdf", pdfBytes)
+                        text(buildPromptWithInstructions(prompt))
                     }
                 )
             } else {
-                generativeModel.generateContent(prompt)
+                generativeModel.generateContent(buildPromptWithInstructions(prompt))
             }
 
             val resultText = response.text
@@ -55,5 +81,90 @@ class GeminiRemoteDataSource @Inject constructor() : LlmRemoteDataSource {
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    override suspend fun sendMessageWithJsonResponse(
+        apiKey: String,
+        prompt: String,
+        pdfBytes: ByteArray?,
+        jsonSchema: String
+    ): Result<String> = withContext(Dispatchers.IO) {
+        try {
+            val generativeModel = GenerativeModel(
+                modelName = "gemini-1.5-pro",
+                apiKey = apiKey,
+                generationConfig = generationConfig {
+                    temperature = 0.1f
+                    topK = 1
+                    topP = 1.0f
+                    maxOutputTokens = 8192
+                    responseMimeType = "application/json"
+                    responseSchema = jsonSchema
+                },
+                systemInstruction = content {
+                    text("""
+                        Eres un asistente especializado en extraer información estructurada de documentos.
+                        Debes responder ÚNICAMENTE con JSON válido que cumpla con el esquema proporcionado.
+                        No incluyas explicaciones, markdown, ni texto adicional.
+                        Si no encuentras información para un campo, usa null o array vacío según corresponda.
+                    """.trimIndent())
+                }
+            )
+
+            val fullPrompt = buildString {
+                append("Extrae la siguiente información del documento en formato JSON:\n")
+                append(prompt)
+                if (pdfBytes != null) {
+                    append("\n\nAnaliza el documento PDF página por página como imágenes.")
+                    append("\nPresta especial atención a las tablas y datos estructurados.")
+                }
+            }
+
+            val response = if (pdfBytes != null) {
+                generativeModel.generateContent(
+                    content {
+                        image("application/pdf", pdfBytes)
+                        text(fullPrompt)
+                    }
+                )
+            } else {
+                generativeModel.generateContent(fullPrompt)
+            }
+
+            val resultText = response.text
+            if (resultText != null) {
+                Result.success(resultText)
+            } else {
+                Result.failure(Exception("Gemini regresó una respuesta vacía"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * Construye el prompt con instrucciones específicas para capacidades avanzadas
+     */
+    private fun buildPromptWithInstructions(userPrompt: String): String {
+        return buildString {
+            append(userPrompt)
+            append("\n\n---\n")
+            append("Instrucciones adicionales:\n")
+            append("- Analiza el documento página por página como imágenes.\n")
+            append("- Extrae tablas y datos estructurados con precisión.\n")
+            append("- Responde en formato JSON válido.\n")
+            append("- No incluyas markdown ni comentarios fuera del JSON.")
+        }
+    }
+
+    /**
+     * Función helper para crear contenido con imagen
+     * Según la documentación oficial de Gemini API
+     */
+    private fun com.google.ai.client.generativeai.type.ContentBuilder.image(
+        mimeType: String,
+        data: ByteArray
+    ) {
+        data(mimeType, data)
     }
 }
