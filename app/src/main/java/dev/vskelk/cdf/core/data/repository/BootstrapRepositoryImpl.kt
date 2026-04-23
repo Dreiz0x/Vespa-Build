@@ -9,7 +9,6 @@ import dev.vskelk.cdf.core.domain.repository.*
 import dev.vskelk.cdf.core.datastore.PreferencesDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.decodeFromString
 import javax.inject.Inject
@@ -32,23 +31,25 @@ class BootstrapRepositoryImpl @Inject constructor(
 
     override val bootstrapState: Flow<BootstrapState> = flow {
         emit(BootstrapState.Checking)
-        try {
-            val manifest = getManifestJson()
-            val currentVersion = preferencesDataSource.seedVersionApplied.first()
-            if (currentVersion != manifest.version || !meetsMinimumCounts(manifest)) {
-                emit(BootstrapState.Seeding("Iniciando carga de datos...", 0f))
-                loadSeedData { message, progress -> emit(BootstrapState.Seeding(message, progress)) }
-                preferencesDataSource.setSeedVersionApplied(manifest.version)
-                emit(BootstrapState.Ready)
-            } else {
-                emit(BootstrapState.Ready)
-            }
-        } catch (e: Exception) {
-            emit(BootstrapState.Error(e.message ?: "Error desconocido", canRetry = true))
+        val manifest = getManifestJson()
+        val currentVersion = preferencesDataSource.seedVersionApplied.first()
+        
+        if (currentVersion != manifest.version || !meetsMinimumCounts(manifest)) {
+            emit(BootstrapState.Seeding("Iniciando carga de datos...", 0f))
+            loadSeedData { message, progress -> emit(BootstrapState.Seeding(message, progress)) }
+            preferencesDataSource.setSeedVersionApplied(manifest.version)
+            emit(BootstrapState.Ready)
+        } else {
+            emit(BootstrapState.Ready)
         }
+    }.catch { e -> 
+        // ⚡ CORREGIDO: El catch va por fuera del flow builder para respetar la transparencia
+        emit(BootstrapState.Error(e.message ?: "Error desconocido", canRetry = true))
     }.flowOn(Dispatchers.IO)
 
-    private suspend fun loadSeedData(onProgress: suspend (String, Float) -> Unit) = withContext(Dispatchers.IO) {
+    // ⚡ CORREGIDO: Se eliminó withContext(Dispatchers.IO) porque el flow ya corre en IO.
+    // Esto evita la violación del invariante de contexto del Flow.
+    private suspend fun loadSeedData(onProgress: suspend (String, Float) -> Unit) {
         onProgress("Cargando fuentes...", 0.05f)
         val sources = loadNormativaSources()
         sources.forEach { 
