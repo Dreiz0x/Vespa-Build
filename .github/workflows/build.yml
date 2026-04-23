@@ -1,4 +1,4 @@
-name: Build APK
+Name: Build APK
 
 on:
   push:
@@ -33,7 +33,25 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build debug APK
-        run: ./gradlew assembleDebug --stacktrace --no-daemon
+        # ⚡ CIRUGÍA: Agregamos 'clean' para forzar reconstrucción total y evitar errores de Seeds/Cache
+        run: ./gradlew clean assembleDebug --stacktrace --no-daemon
+
+      - name: Upload APK
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vespa-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Upload build logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: |
+            app/build/outputs/
+            app/build/reports/
+          retention-days: 7
 
       - name: Upload APK
         if: success()
