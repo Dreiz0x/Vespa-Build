@@ -10,17 +10,37 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * Data Classes de Estado - Deben estar aquí o en un archivo visible
+ */
+data class SessionSummary(
+    val id: Long,
+    val correctos: Int,
+    val total: Int,
+    val modulo: String
+)
+
+data class MainUiState(
+    val isLoading: Boolean = true,
+    val progresoGeneral: Int = 0,
+    val brechasDetectadas: Int = 0,
+    val sesionesCompletadas: Int = 0,
+    val subtemasDominados: Int = 0,
+    val corpusVersion: String = "2.0",
+    val pendientesInvestigador: Int = 0,
+    val recientes: List<SessionSummary> = emptyList()
+)
+
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val adaptiveRepository: AdaptiveRepository,
-    private val bootstrapRepository: BootstrapRepository // ⚡ Inyectado para activar la siembra
+    private val bootstrapRepository: BootstrapRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainUiState())
     val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
 
     init {
-        // ⚡ Iniciamos la observación del estado de arranque
         checkBootstrap()
         loadStats()
     }
@@ -34,11 +54,10 @@ class MainViewModel @Inject constructor(
                     }
                     is BootstrapState.Ready -> {
                         _uiState.update { it.copy(isLoading = false) }
-                        loadStats() // Recargamos stats ahora que hay datos
+                        loadStats()
                     }
                     is BootstrapState.Error -> {
                         _uiState.update { it.copy(isLoading = false) }
-                        // Aquí podrías emitir un evento de error a la UI
                     }
                     else -> Unit
                 }
