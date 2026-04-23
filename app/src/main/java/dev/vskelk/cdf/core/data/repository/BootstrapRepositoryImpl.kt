@@ -10,7 +10,6 @@ import dev.vskelk.cdf.core.datastore.PreferencesDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.decodeFromString
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -23,7 +22,10 @@ class BootstrapRepositoryImpl @Inject constructor(
     private val preferencesDataSource: PreferencesDataSource
 ) : BootstrapRepository {
 
-    private val jsonParser = Json { ignoreUnknownKeys = true }
+    private val jsonParser = Json { 
+        ignoreUnknownKeys = true 
+        coerceInputValues = true
+    }
 
     override suspend fun initialize() {
         bootstrapState.first()
@@ -43,12 +45,9 @@ class BootstrapRepositoryImpl @Inject constructor(
             emit(BootstrapState.Ready)
         }
     }.catch { e -> 
-        // ⚡ CORREGIDO: El catch va por fuera del flow builder para respetar la transparencia
-        emit(BootstrapState.Error(e.message ?: "Error desconocido", canRetry = true))
+        emit(BootstrapState.Error(e.message ?: "Error de sembrado", canRetry = true))
     }.flowOn(Dispatchers.IO)
 
-    // ⚡ CORREGIDO: Se eliminó withContext(Dispatchers.IO) porque el flow ya corre en IO.
-    // Esto evita la violación del invariante de contexto del Flow.
     private suspend fun loadSeedData(onProgress: suspend (String, Float) -> Unit) {
         onProgress("Cargando fuentes...", 0.05f)
         val sources = loadNormativaSources()
@@ -95,9 +94,9 @@ class BootstrapRepositoryImpl @Inject constructor(
             CargoEntity(
                 id = 1, 
                 nombre = "VOE", 
-                descripcion = "Cargo", 
+                descripcion = "Vocalía de Organización Electoral", 
                 areaExamen = "TECNICO", 
-                nivel = "Vocalía", 
+                nivel = "Distrital", 
                 isDefault = true
             )
         )
@@ -157,7 +156,6 @@ class BootstrapRepositoryImpl @Inject constructor(
     private fun loadNormativaSources(): List<SeedNormativaSource> = try { parseJsonFile("normativa_sources.json") } catch (e: Exception) { emptyList() }
     private fun loadNormativaFragments(): List<SeedNormativaFragment> = try { parseJsonFile("normativa_fragments.json") } catch (e: Exception) { emptyList() }
     private fun loadOntologiaNodes(): List<SeedOntologiaNode> = try { parseJsonFile("ontologia.json") } catch (e: Exception) { emptyList() }
-    private fun loadOntologiaEdges(): List<SeedOntologiaEdge> = try { parseJsonFile("ontologia_edges.json") } catch (e: Exception) { emptyList() }
     private fun loadReactivos(): List<SeedReactivo> = try { parseJsonFile("reactivos.json") } catch (e: Exception) { emptyList() }
 
     override suspend fun needsSeeding(): Boolean {
@@ -166,9 +164,12 @@ class BootstrapRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getSeedVersion(): String? = preferencesDataSource.seedVersionApplied.first().takeIf { it.isNotEmpty() }
+    
     override suspend fun getManifest(): String = context.assets.open("seed/seed_manifest.json").bufferedReader().use { it.readText() }
     
     private suspend fun meetsMinimumCounts(manifest: SeedManifest): Boolean {
-        return reactivoDao.getActiveReactivoCount() >= manifest.minReactivos && normativeDao.getVigenteFragmentCount() >= manifest.minNormativa && ontologyDao.getActiveNodeCount() >= manifest.minOntologia
+        return reactivoDao.getActiveReactivoCount() >= manifest.minReactivos && 
+               normativeDao.getVigenteFragmentCount() >= manifest.minNormativa && 
+               ontologyDao.getActiveNodeCount() >= manifest.minOntologia
     }
 }
