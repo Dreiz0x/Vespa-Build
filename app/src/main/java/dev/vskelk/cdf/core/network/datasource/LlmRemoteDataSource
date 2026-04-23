@@ -9,7 +9,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * LlmRemoteDataSource - Interfaz para servicios LLM
+ * LlmRemoteDataSource - Interfaz multi-proveedor para LLMs
  */
 interface LlmRemoteDataSource {
     suspend fun sendMessage(
@@ -20,7 +20,7 @@ interface LlmRemoteDataSource {
 }
 
 /**
- * GeminiRemoteDataSource - Implementación nativa usando Google Generative AI SDK
+ * Implementación nativa para Gemini 1.5 Pro
  */
 @Singleton
 class GeminiRemoteDataSource @Inject constructor() : LlmRemoteDataSource {
@@ -51,7 +51,7 @@ class GeminiRemoteDataSource @Inject constructor() : LlmRemoteDataSource {
             if (resultText != null) {
                 Result.success(resultText)
             } else {
-                Result.failure(Exception("Respuesta vacía de Gemini"))
+                Result.failure(Exception("Gemini regresó una respuesta vacía"))
             }
         } catch (e: Exception) {
             Result.failure(e)
