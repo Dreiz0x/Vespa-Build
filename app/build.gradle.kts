@@ -130,7 +130,9 @@ dependencies {
     implementation(libs.androidx.hilt.work)
     ksp(libs.androidx.hilt.compiler)
 
-    implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
+    // Google AI Client SDK for Gemini API
+    // Versión estable con soporte multimodal completo
+    implementation("com.google.ai.client.generativeai:generativeai:0.7.0")
 
     implementation(libs.kotlinx.serialization.json)
 
