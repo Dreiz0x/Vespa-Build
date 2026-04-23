@@ -193,16 +193,7 @@ class GeminiService @Inject constructor() {
         }
     }
 
-    suspend fun isApiAvailable(apiKey: String): Boolean = withContext(Dispatchers.IO) {
-        try {
-            val result = generateWithVision(apiKey, "test", null)
-            result.isSuccess
-        } catch (e: Exception) {
-            false
-        }
-    }
-
-    // Data classes para la API de Gemini
+    // Data classes internas para evitar fugas de serialización
     data class GeminiRequest(
         val contents: List<GeminiContent>,
         val generationConfig: GenerationConfig,
