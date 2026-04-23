@@ -24,7 +24,7 @@ class GeminiRemoteDataSource @Inject constructor() : LlmRemoteDataSource {
             val response = if (pdfBytes != null) {
                 generativeModel.generateContent(
                     content {
-                        data("application/pdf", pdfBytes)
+                        blob("application/pdf", pdfBytes)
                         text(prompt)
                     }
                 )
