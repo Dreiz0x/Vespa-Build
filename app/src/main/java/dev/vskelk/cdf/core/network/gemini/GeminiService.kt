@@ -50,12 +50,17 @@ class GeminiService @Inject constructor() {
             }
 
             val fullPrompt = buildString {
+                append("SISTEMA: Bozal de Hierro activado.\n")
+                append("RESTRICCIÓN: Solo responde temas del temario SPEN-INE 2026.\n")
+                append("Si la consulta es ajena al temario, responde exactamente: '⛔ Consulta fuera del temario oficial SPEN...'.\n")
+                append("REQUISITO: Cita siempre Artículo y Ley fuente.\n\n")
                 append(prompt)
                 append("\n\n---\n")
                 append("Instrucciones adicionales:\n")
                 append("- Analiza el documento página por página como imágenes.\n")
                 append("- Extrae tablas y datos estructurados con precisión.\n")
                 append("- Responde en formato JSON válido.\n")
+                append("- Incluye un campo 'confidence_score' (0.0 a 1.0).\n")
                 append("- No incluyas markdown ni comentarios fuera del JSON.")
             }
 
@@ -154,7 +159,13 @@ class GeminiService @Inject constructor() {
                 systemInstruction = GeminiContent(
                     parts = listOf(
                         GeminiPart(
-                            text = "Eres un asistente especializado en extraer información estructurada. Responde SOLO con JSON válido."
+                            text = """
+                                Eres un asistente experto en el temario SPEN-INE 2026. 
+                                RESTRICCIÓN: Solo responde temas del temario oficial. 
+                                Si la consulta es ajena, responde: '⛔ Consulta fuera del temario oficial SPEN...'.
+                                Todas las respuestas deben citar Artículo y Ley fuente.
+                                Responde SOLO con JSON válido que incluya un 'confidence_score'.
+                            """.trimIndent()
                         )
                     )
                 )

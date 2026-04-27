@@ -38,6 +38,7 @@ data class CuarentenaFragmentoEntity(
 
 object CuarentenaEstado {
     const val PENDIENTE = "PENDIENTE"
+    const val PENDING_VALIDATION = "PENDING_VALIDATION"
     const val APROBADO = "APROBADO"
     const val RECHAZADO = "RECHAZADO"
     const val CONFLICTO = "CONFLICTO"
@@ -52,12 +53,13 @@ object CuarentenaRules {
     fun determinarEstadoInicial(
         fuente: String?,
         certeza: String,
-        tieneConflicto: Boolean
+        tieneConflicto: Boolean,
+        confidenceScore: Float = 1.0f
     ): String {
         return when {
             fuente.isNullOrBlank() -> CuarentenaEstado.PENDIENTE
-            tieneConflicto -> CuarentenaEstado.CONFLICTO
-            certeza == ExtractionCertainty.BAJA -> CuarentenaEstado.PENDIENTE
+            tieneConflicto || confidenceScore < 0.85f -> CuarentenaEstado.CONFLICTO
+            certeza == ExtractionCertainty.BAJA -> CuarentenaEstado.PENDING_VALIDATION
             else -> CuarentenaEstado.PENDIENTE
         }
     }

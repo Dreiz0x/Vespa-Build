@@ -123,6 +123,15 @@ object OntologyNodeTypes {
     const val PATRON_ERROR = "PATRON_ERROR"
     const val EXCEPCION = "EXCEPCION"
     const val CONDICION = "CONDICION"
+    
+    // Áreas del Bozal Ontológico
+    const val AREA_ESTRUCTURA = "ESTRUCTURA"
+    const val AREA_PROCESO = "PROCESO"
+    const val AREA_ORGANIZACION = "ORGANIZACION"
+    const val AREA_JUSTICIA = "JUSTICIA"
+    const val AREA_RESULTADOS = "RESULTADOS"
+    const val AREA_RAZONAMIENTO = "RAZONAMIENTO_LOGICO_MATEMATICO"
+    const val AREA_COMPRENSION = "COMPRENSION_LECTORA"
 }
 
 /**
