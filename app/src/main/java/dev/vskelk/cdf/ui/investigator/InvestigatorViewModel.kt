@@ -10,7 +10,9 @@ import com.tom_roush.pdfbox.text.PDFTextStripper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dev.vskelk.cdf.core.database.dao.NormativeDao
+import dev.vskelk.cdf.core.database.entity.ExtractionCertainty
 import dev.vskelk.cdf.core.database.entity.NormativeFragmentEntity
+import dev.vskelk.cdf.core.database.entity.SourceType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -54,7 +56,11 @@ class InvestigatorViewModel @Inject constructor(
                 source = source,
                 content = chunk,
                 articleRef = "Local Ingestion",
-                status = "VIGENTE"
+                status = "VIGENTE",
+                sourceType = SourceType.LEY,
+                certainty = ExtractionCertainty.BAJA,
+                areaExamen = "GENERAL",
+                vigenciaDesde = System.currentTimeMillis()
             )
             normativeDao.insertFragment(fragment)
             
