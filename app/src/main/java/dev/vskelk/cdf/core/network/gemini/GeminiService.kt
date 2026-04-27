@@ -23,7 +23,7 @@ class GeminiService @Inject constructor() {
         .build()
 
     private val baseUrl = "https://generativelanguage.googleapis.com"
-    private val modelName = "gemini-1.5-pro"
+    private val modelName = "gemini-1.5-flash"
 
     suspend fun generateWithVision(
         apiKey: String,
