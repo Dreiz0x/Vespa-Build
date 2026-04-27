@@ -11,35 +11,32 @@ import dev.vskelk.cdf.core.database.entity.*
         OntologyRelationEntity::class,
         CargoEntity::class,
         OrganoEntity::class,
-        NormativeFragmentEntity::class,
-        DocumentSourceEntity::class,
-        ReactivoFragmentCrossRef::class,
+        ConversationEntity::class,
+        MessageEntity::class,
+        PendingSyncEntity::class,
         ReactivoEntity::class,
         ReactivoOptionEntity::class,
         ReactivoIntentoEntity::class,
+        ReactivoFragmentCrossRef::class,
+        QuarantineEntity::class,
+        DiagnosisEntity::class,
         UserTopicMasteryEntity::class,
         UserGapLogEntity::class,
         StudySessionEntity::class,
-        QuarantineEntity::class,
-        DiagnosisEntity::class,
-        ConversationEntity::class,
-        MessageEntity::class,
-        PendingSyncEntity::class
+        NormativeFragmentEntity::class,
+        DocumentSourceEntity::class
     ],
     version = 1,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun ontologyDao(): OntologyDao
-    abstract fun cargoDao(): CargoDao
-    abstract fun organoDao(): OrganoDao
-    abstract fun normativeDao(): NormativeDao
-    abstract fun documentSourceDao(): DocumentSourceDao
-    abstract fun reactivoDao(): ReactivoDao
-    abstract fun userMasteryDao(): UserMasteryDao
     abstract fun studySessionDao(): StudySessionDao
-    abstract fun quarantineDao(): QuarantineDao
+    abstract fun userMasteryDao(): UserMasteryDao
+    abstract fun reactivoDao(): ReactivoDao
+    abstract fun normativeDao(): NormativeDao
+    abstract fun ontologyDao(): OntologyDao
     abstract fun diagnosisDao(): DiagnosisDao
+    abstract fun quarantineDao(): QuarantineDao
     abstract fun conversationDao(): ConversationDao
 
     companion object {

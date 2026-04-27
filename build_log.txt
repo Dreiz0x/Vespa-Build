@@ -1,0 +1,153 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.7/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:generateDebugBuildConfig UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:processDebugResources UP-TO-DATE
+
+> Task :app:kspDebugKotlin FAILED
+e: [ksp] /root/Spen-Vespa/app/src/main/java/dev/vskelk/cdf/core/database/entity/AdaptiveEntities.kt:23: The name "user_gap_logs" is used by multiple entities or views: dev.vskelk.cdf.core.database.entity.UserGapLogEntity, dev.vskelk.cdf.core.database.entity.UserGapLogEntity
+e: [ksp] /root/Spen-Vespa/app/src/main/java/dev/vskelk/cdf/core/database/entity/AdaptiveEntities.kt:23: The name "user_gap_logs" is used by multiple entities or views: dev.vskelk.cdf.core.database.entity.UserGapLogEntity, dev.vskelk.cdf.core.database.entity.UserGapLogEntity
+e: [ksp] /root/Spen-Vespa/app/src/main/java/dev/vskelk/cdf/core/database/AppDatabase.kt:34: The name "user_gap_logs" is used by multiple entities or views: dev.vskelk.cdf.core.database.entity.UserGapLogEntity, dev.vskelk.cdf.core.database.entity.UserGapLogEntity
+e: [ksp] /root/Spen-Vespa/app/src/main/java/dev/vskelk/cdf/core/database/entity/AdaptiveEntities.kt:7: The name "study_sessions" is used by multiple entities or views: dev.vskelk.cdf.core.database.entity.StudySessionEntity, dev.vskelk.cdf.core.database.entity.StudySessionEntity
+e: [ksp] /root/Spen-Vespa/app/src/main/java/dev/vskelk/cdf/core/database/entity/AdaptiveEntities.kt:7: The name "study_sessions" is used by multiple entities or views: dev.vskelk.cdf.core.database.entity.StudySessionEntity, dev.vskelk.cdf.core.database.entity.StudySessionEntity
+e: [ksp] /root/Spen-Vespa/app/src/main/java/dev/vskelk/cdf/core/database/AppDatabase.kt:34: The name "study_sessions" is used by multiple entities or views: dev.vskelk.cdf.core.database.entity.StudySessionEntity, dev.vskelk.cdf.core.database.entity.StudySessionEntity
+e: [ksp] /root/Spen-Vespa/app/src/main/java/dev/vskelk/cdf/core/database/dao/UserMasteryDao.kt:24: There is a problem with the query: [SQLITE_ERROR] SQL error or missing database (no such column: subtemaId)
+e: [ksp] /root/Spen-Vespa/app/src/main/java/dev/vskelk/cdf/core/database/dao/UserMasteryDao.kt:24: Not sure how to convert a Cursor to this method's return type (dev.vskelk.cdf.core.database.entity.UserTopicMasteryEntity).
+e: [ksp] /root/Spen-Vespa/app/src/main/java/dev/vskelk/cdf/core/database/dao/UserMasteryDao.kt:27: There is a problem with the query: [SQLITE_ERROR] SQL error or missing database (no such column: subtemaId)
+e: [ksp] /root/Spen-Vespa/app/src/main/java/dev/vskelk/cdf/core/database/dao/UserMasteryDao.kt:27: Not sure how to convert a Cursor to this method's return type (kotlinx.coroutines.flow.Flow<dev.vskelk.cdf.core.database.entity.UserTopicMasteryEntity>).
+e: [ksp] /root/Spen-Vespa/app/src/main/java/dev/vskelk/cdf/core/database/dao/UserMasteryDao.kt:30: There is a problem with the query: [SQLITE_ERROR] SQL error or missing database (no such column: precision)
+e: [ksp] /root/Spen-Vespa/app/src/main/java/dev/vskelk/cdf/core/database/dao/UserMasteryDao.kt:30: Not sure how to convert a Cursor to this method's return type (kotlinx.coroutines.flow.Flow<java.util.List<dev.vskelk.cdf.core.database.entity.UserTopicMasteryEntity>>).
+e: [ksp] /root/Spen-Vespa/app/src/main/java/dev/vskelk/cdf/core/database/dao/UserMasteryDao.kt:37: There is a problem with the query: [SQLITE_ERROR] SQL error or missing database (no such column: estadoDominio)
+e: [ksp] /root/Spen-Vespa/app/src/main/java/dev/vskelk/cdf/core/database/dao/UserMasteryDao.kt:37: Not sure how to convert a Cursor to this method's return type (kotlinx.coroutines.flow.Flow<java.util.List<dev.vskelk.cdf.core.database.entity.UserTopicMasteryEntity>>).
+e: [ksp] /root/Spen-Vespa/app/src/main/java/dev/vskelk/cdf/core/database/dao/UserMasteryDao.kt:45: There is a problem with the query: [SQLITE_ERROR] SQL error or missing database (no such column: precision)
+e: [ksp] /root/Spen-Vespa/app/src/main/java/dev/vskelk/cdf/core/database/dao/UserMasteryDao.kt:45: Not sure how to convert a Cursor to this method's return type (java.util.List<dev.vskelk.cdf.core.database.entity.UserTopicMasteryEntity>).
+e: [ksp] /root/Spen-Vespa/app/src/main/java/dev/vskelk/cdf/core/database/dao/UserMasteryDao.kt:52: There is a problem with the query: [SQLITE_ERROR] SQL error or missing database (no such column: estadoDominio)
+e: [ksp] /root/Spen-Vespa/app/src/main/java/dev/vskelk/cdf/core/database/dao/UserMasteryDao.kt:52: Not sure how to convert a Cursor to this method's return type (kotlinx.coroutines.flow.Flow<java.util.List<dev.vskelk.cdf.core.database.entity.UserTopicMasteryEntity>>).
+e: [ksp] /root/Spen-Vespa/app/src/main/java/dev/vskelk/cdf/core/database/dao/UserMasteryDao.kt:58: There is a problem with the query: [SQLITE_ERROR] SQL error or missing database (no such column: estadoDominio)
+e: [ksp] /root/Spen-Vespa/app/src/main/java/dev/vskelk/cdf/core/database/dao/UserMasteryDao.kt:58: Not sure how to convert a Cursor to this method's return type (kotlinx.coroutines.flow.Flow<java.lang.Integer>).
+e: [ksp] /root/Spen-Vespa/app/src/main/java/dev/vskelk/cdf/core/database/dao/UserMasteryDao.kt:152: There is a problem with the query: [SQLITE_ERROR] SQL error or missing database (no such table: user_gap_log)
+e: [ksp] /root/Spen-Vespa/app/src/main/java/dev/vskelk/cdf/core/database/dao/UserMasteryDao.kt:152: Not sure how to convert a Cursor to this method's return type (kotlinx.coroutines.flow.Flow<java.util.List<dev.vskelk.cdf.core.database.entity.UserGapLogEntity>>).
+e: [ksp] /root/Spen-Vespa/app/src/main/java/dev/vskelk/cdf/core/database/dao/UserMasteryDao.kt:161: There is a problem with the query: [SQLITE_ERROR] SQL error or missing database (no such table: user_gap_log)
+e: [ksp] /root/Spen-Vespa/app/src/main/java/dev/vskelk/cdf/core/database/dao/UserMasteryDao.kt:161: Not sure how to convert a Cursor to this method's return type (java.util.List<dev.vskelk.cdf.core.database.dao.ErrorTypeCount>).
+e: [ksp] /root/Spen-Vespa/app/src/main/java/dev/vskelk/cdf/core/database/dao/UserMasteryDao.kt:170: There is a problem with the query: [SQLITE_ERROR] SQL error or missing database (no such table: user_gap_log)
+e: [ksp] /root/Spen-Vespa/app/src/main/java/dev/vskelk/cdf/core/database/dao/UserMasteryDao.kt:170: Not sure how to convert a Cursor to this method's return type (java.util.List<dev.vskelk.cdf.core.database.dao.ErrorTypeCount>).
+e: [ksp] /root/Spen-Vespa/app/src/main/java/dev/vskelk/cdf/core/database/dao/UserMasteryDao.kt:173: There is a problem with the query: [SQLITE_ERROR] SQL error or missing database (no such table: user_gap_log)
+e: [ksp] /root/Spen-Vespa/app/src/main/java/dev/vskelk/cdf/core/database/dao/UserMasteryDao.kt:173: Not sure how to convert a Cursor to this method's return type (java.util.List<dev.vskelk.cdf.core.database.entity.UserGapLogEntity>).
+e: [ksp] /root/Spen-Vespa/app/src/main/java/dev/vskelk/cdf/core/database/dao/UserMasteryDao.kt:176: There is a problem with the query: [SQLITE_ERROR] SQL error or missing database (no such table: user_gap_log)
+e: [ksp] /root/Spen-Vespa/app/src/main/java/dev/vskelk/cdf/core/database/dao/UserMasteryDao.kt:176: Not sure how to convert a Cursor to this method's return type (java.lang.Integer).
+e: [ksp] /root/Spen-Vespa/app/src/main/java/dev/vskelk/cdf/core/database/dao/UserMasteryDao.kt:179: There is a problem with the query: [SQLITE_ERROR] SQL error or missing database (no such table: user_gap_log)
+e: [ksp] /root/Spen-Vespa/app/src/main/java/dev/vskelk/cdf/core/database/dao/UserMasteryDao.kt:179: Not sure how to convert a Cursor to this method's return type (kotlinx.coroutines.flow.Flow<java.lang.Integer>).
+e: [ksp] /root/Spen-Vespa/app/src/main/java/dev/vskelk/cdf/core/database/dao/OntologyDao.kt:110: There is a problem with the query: [SQLITE_ERROR] SQL error or missing database (no such column: m.subtemaId)
+e: [ksp] /root/Spen-Vespa/app/src/main/java/dev/vskelk/cdf/core/database/dao/OntologyDao.kt:110: Not sure how to convert a Cursor to this method's return type (kotlinx.coroutines.flow.Flow<java.util.List<dev.vskelk.cdf.core.database.entity.OntologyNodeEntity>>).
+e: [ksp] InjectProcessingStep was unable to process 'InvestigadorRepositoryImpl(dev.vskelk.cdf.core.database.dao.QuarantineDao,dev.vskelk.cdf.core.database.dao.NormativeDao,error.NonExistentClass,dev.vskelk.cdf.core.datastore.PreferencesDataSource)' because 'error.NonExistentClass' could not be resolved.
+
+Dependency trace:
+    => element (CLASS): dev.vskelk.cdf.core.data.repository.InvestigadorRepositoryImpl
+    => element (CONSTRUCTOR): InvestigadorRepositoryImpl(dev.vskelk.cdf.core.database.dao.QuarantineDao,dev.vskelk.cdf.core.database.dao.NormativeDao,error.NonExistentClass,dev.vskelk.cdf.core.datastore.PreferencesDataSource)
+    => type (EXECUTABLE constructor): (dev.vskelk.cdf.core.database.dao.QuarantineDao,dev.vskelk.cdf.core.database.dao.NormativeDao,error.NonExistentClass,dev.vskelk.cdf.core.datastore.PreferencesDataSource)void
+    => type (ERROR parameter type): error.NonExistentClass
+
+If type 'error.NonExistentClass' is a generated type, check above for compilation errors that may have prevented the type from being generated. Otherwise, ensure that type 'error.NonExistentClass' is on your classpath.
+e: [ksp] ModuleProcessingStep was unable to process 'dev.vskelk.cdf.app.di.DatabaseModule' because 'error.NonExistentClass' could not be resolved.
+
+Dependency trace:
+    => element (OBJECT): dev.vskelk.cdf.app.di.DatabaseModule
+    => element (METHOD): provideCuarentenaDao(dev.vskelk.cdf.core.database.AppDatabase)
+    => type (ERROR return type): error.NonExistentClass
+
+If type 'error.NonExistentClass' is a generated type, check above for compilation errors that may have prevented the type from being generated. Otherwise, ensure that type 'error.NonExistentClass' is on your classpath.
+e: [ksp] BindingMethodProcessingStep was unable to process 'provideDatabase(android.content.Context)' because 'error.NonExistentClass' could not be resolved.
+
+Dependency trace:
+    => element (OBJECT): dev.vskelk.cdf.app.di.DatabaseModule
+    => element (METHOD): provideCuarentenaDao(dev.vskelk.cdf.core.database.AppDatabase)
+    => type (ERROR return type): error.NonExistentClass
+
+If type 'error.NonExistentClass' is a generated type, check above for compilation errors that may have prevented the type from being generated. Otherwise, ensure that type 'error.NonExistentClass' is on your classpath.
+e: [ksp] BindingMethodProcessingStep was unable to process 'provideOntologyDao(dev.vskelk.cdf.core.database.AppDatabase)' because 'error.NonExistentClass' could not be resolved.
+
+Dependency trace:
+    => element (OBJECT): dev.vskelk.cdf.app.di.DatabaseModule
+    => element (METHOD): provideCuarentenaDao(dev.vskelk.cdf.core.database.AppDatabase)
+    => type (ERROR return type): error.NonExistentClass
+
+If type 'error.NonExistentClass' is a generated type, check above for compilation errors that may have prevented the type from being generated. Otherwise, ensure that type 'error.NonExistentClass' is on your classpath.
+e: [ksp] BindingMethodProcessingStep was unable to process 'provideNormativeDao(dev.vskelk.cdf.core.database.AppDatabase)' because 'error.NonExistentClass' could not be resolved.
+
+Dependency trace:
+    => element (OBJECT): dev.vskelk.cdf.app.di.DatabaseModule
+    => element (METHOD): provideCuarentenaDao(dev.vskelk.cdf.core.database.AppDatabase)
+    => type (ERROR return type): error.NonExistentClass
+
+If type 'error.NonExistentClass' is a generated type, check above for compilation errors that may have prevented the type from being generated. Otherwise, ensure that type 'error.NonExistentClass' is on your classpath.
+e: [ksp] BindingMethodProcessingStep was unable to process 'provideReactivoDao(dev.vskelk.cdf.core.database.AppDatabase)' because 'error.NonExistentClass' could not be resolved.
+
+Dependency trace:
+    => element (OBJECT): dev.vskelk.cdf.app.di.DatabaseModule
+    => element (METHOD): provideCuarentenaDao(dev.vskelk.cdf.core.database.AppDatabase)
+    => type (ERROR return type): error.NonExistentClass
+
+If type 'error.NonExistentClass' is a generated type, check above for compilation errors that may have prevented the type from being generated. Otherwise, ensure that type 'error.NonExistentClass' is on your classpath.
+e: [ksp] BindingMethodProcessingStep was unable to process 'provideUserMasteryDao(dev.vskelk.cdf.core.database.AppDatabase)' because 'error.NonExistentClass' could not be resolved.
+
+Dependency trace:
+    => element (OBJECT): dev.vskelk.cdf.app.di.DatabaseModule
+    => element (METHOD): provideCuarentenaDao(dev.vskelk.cdf.core.database.AppDatabase)
+    => type (ERROR return type): error.NonExistentClass
+
+If type 'error.NonExistentClass' is a generated type, check above for compilation errors that may have prevented the type from being generated. Otherwise, ensure that type 'error.NonExistentClass' is on your classpath.
+e: [ksp] BindingMethodProcessingStep was unable to process 'provideStudySessionDao(dev.vskelk.cdf.core.database.AppDatabase)' because 'error.NonExistentClass' could not be resolved.
+
+Dependency trace:
+    => element (OBJECT): dev.vskelk.cdf.app.di.DatabaseModule
+    => element (METHOD): provideCuarentenaDao(dev.vskelk.cdf.core.database.AppDatabase)
+    => type (ERROR return type): error.NonExistentClass
+
+If type 'error.NonExistentClass' is a generated type, check above for compilation errors that may have prevented the type from being generated. Otherwise, ensure that type 'error.NonExistentClass' is on your classpath.
+e: [ksp] BindingMethodProcessingStep was unable to process 'provideCuarentenaDao(dev.vskelk.cdf.core.database.AppDatabase)' because 'error.NonExistentClass' could not be resolved.
+
+Dependency trace:
+    => element (OBJECT): dev.vskelk.cdf.app.di.DatabaseModule
+    => element (METHOD): provideCuarentenaDao(dev.vskelk.cdf.core.database.AppDatabase)
+    => type (ERROR return type): error.NonExistentClass
+
+If type 'error.NonExistentClass' is a generated type, check above for compilation errors that may have prevented the type from being generated. Otherwise, ensure that type 'error.NonExistentClass' is on your classpath.
+e: [ksp] BindingMethodProcessingStep was unable to process 'provideConversationDao(dev.vskelk.cdf.core.database.AppDatabase)' because 'error.NonExistentClass' could not be resolved.
+
+Dependency trace:
+    => element (OBJECT): dev.vskelk.cdf.app.di.DatabaseModule
+    => element (METHOD): provideCuarentenaDao(dev.vskelk.cdf.core.database.AppDatabase)
+    => type (ERROR return type): error.NonExistentClass
+
+If type 'error.NonExistentClass' is a generated type, check above for compilation errors that may have prevented the type from being generated. Otherwise, ensure that type 'error.NonExistentClass' is on your classpath.
+e: Error occurred in KSP, check log for detail
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:kspDebugKotlin'.
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 15s
+15 actionable tasks: 1 executed, 14 up-to-date
