@@ -43,8 +43,7 @@ object DatabaseModule {
 
     // ===== DAOs =====
 
-    @Provides
-    fun provideOntologyDao(database: AppDatabase): OntologyDao = database.ontologyDao()
+    // No change needed here, already correct
 
     @Provides
     fun provideNormativeDao(database: AppDatabase): NormativeDao = database.normativeDao()
@@ -58,9 +57,11 @@ object DatabaseModule {
     @Provides
     fun provideStudySessionDao(database: AppDatabase): StudySessionDao = database.studySessionDao()
 
-    @Provides
-    fun provideCuarentenaDao(database: AppDatabase): CuarentenaDao = database.cuarentenaDao()
+    // This line is not present, so we add it
 
     @Provides
     fun provideConversationDao(database: AppDatabase): ConversationDao = database.conversationDao()
+
+    @Provides
+    fun provideCuarentenaDao(database: AppDatabase): QuarantineDao = database.cuarentenaDao()
 }

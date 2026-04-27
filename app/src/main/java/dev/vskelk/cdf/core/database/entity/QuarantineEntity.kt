@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "quarantine_table")
-data class QuarantineEntity(
+data class CuarentenaFragmentoEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val rawContent: String,
     val confidence: Float,

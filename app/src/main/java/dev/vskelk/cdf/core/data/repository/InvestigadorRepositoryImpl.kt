@@ -1,6 +1,7 @@
 package dev.vskelk.cdf.core.data.repository
 
 import dev.vskelk.cdf.core.database.dao.NormativeDao
+import dev.vskelk.cdf.core.database.dao.OntologyDao
 import dev.vskelk.cdf.core.database.dao.QuarantineDao
 import dev.vskelk.cdf.core.database.entity.NormativeFragmentEntity
 import dev.vskelk.cdf.core.domain.model.FragmentoInvestigado
@@ -35,7 +36,7 @@ class InvestigadorRepositoryImpl @Inject constructor(
             }
 
             emitState(InvestigacionEstado.Formulando("Preparando consulta..."))
-            val apiKey = preferencesDataSource.getApiKey("ANTHROPIC")
+            val apiKey = preferencesDataSource.getApiKey("GEMINI")
                 ?: return InvestigacionEstado.Error("No hay API key configurada")
 
             emitState(InvestigacionEstado.Consultando("Consultando fuentes..."))

@@ -1,6 +1,6 @@
 import kotlinx.coroutines.flow.StateFlow
 
-class CuarentenaViewModel {
+class InterviewViewModel {
     private val _estado = MutableStateFlow(InvestigacionEstado.Idle)
     val estado: StateFlow<InvestigacionEstado> = _estado
 }
