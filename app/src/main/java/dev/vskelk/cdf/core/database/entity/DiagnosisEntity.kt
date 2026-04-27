@@ -3,12 +3,11 @@ package dev.vskelk.cdf.core.database.entity
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "quarantine_table")
-data class QuarantineEntity(
+@Entity(tableName = "diagnosis_table")
+data class DiagnosisEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    val rawContent: String,
+    val result: String,
     val confidence: Float,
-    val spenArea: String,
-    val status: String,
+    val area: String,
     val timestamp: Long
 )
