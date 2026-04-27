@@ -1,8 +1,11 @@
 package dev.vskelk.cdf.core.data.repository
 
-import dev.vskelk.cdf.core.database.dao.*
-import dev.vskelk.cdf.core.database.entity.*
-import dev.vskelk.cdf.core.domain.model.*
+import dev.vskelk.cdf.core.database.dao.NormativeDao
+import dev.vskelk.cdf.core.database.dao.QuarantineDao
+import dev.vskelk.cdf.core.database.entity.NormativeFragmentEntity
+import dev.vskelk.cdf.core.domain.model.FragmentoInvestigado
+import dev.vskelk.cdf.core.domain.model.InvestigacionEstado
+import dev.vskelk.cdf.core.domain.model.InvestigacionResult
 import dev.vskelk.cdf.core.domain.repository.InvestigadorRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -10,7 +13,7 @@ import javax.inject.Singleton
 
 @Singleton
 class InvestigadorRepositoryImpl @Inject constructor(
-    private val cuarentenaDao: CuarentenaDao,
+    private val quarantineDao: QuarantineDao,
     private val normativeDao: NormativeDao,
     private val ontologyDao: OntologyDao,
     private val preferencesDataSource: dev.vskelk.cdf.core.datastore.PreferencesDataSource
@@ -58,20 +61,20 @@ class InvestigadorRepositoryImpl @Inject constructor(
         return state
     }
 
-    override fun observePendientes(): Flow<List<CuarentenaFragmentoEntity>> = cuarentenaDao.observePendientes()
+    override fun observePendientes(): Flow<List<dev.vskelk.cdf.core.database.entity.CuarentenaFragmentoEntity>> = quarantineDao.observePendientes()
     
-    override fun observeConflictos(): Flow<List<CuarentenaFragmentoEntity>> = cuarentenaDao.observeConflictos()
+    override fun observeConflictos(): Flow<List<dev.vskelk.cdf.core.database.entity.CuarentenaFragmentoEntity>> = quarantineDao.observeConflictos()
 
     override suspend fun approveFragmento(fragmentoId: Long) {
-        cuarentenaDao.approveFragmento(fragmentoId)
+        quarantineDao.approveFragmento(fragmentoId)
     }
 
     override suspend fun rejectFragmento(fragmentoId: Long) {
-        cuarentenaDao.rejectFragmento(fragmentoId)
+        quarantineDao.rejectFragmento(fragmentoId)
     }
 
     override suspend fun approveAndPromoteToNormative(fragmentoId: Long) {
-        val fragmento = cuarentenaDao.getFragmentoById(fragmentoId) ?: return
+        val fragmento = quarantineDao.getFragmentoById(fragmentoId) ?: return
 
         val existente = normativeDao.findExactDuplicate(fragmento.contenido)
         if (existente != null) {
@@ -94,12 +97,12 @@ class InvestigadorRepositoryImpl @Inject constructor(
             normativeDao.insertFragment(nuevoFragmento)
         }
 
-        cuarentenaDao.approveFragmento(fragmentoId)
+        quarantineDao.approveFragmento(fragmentoId)
     }
 
-    override fun observePendienteCount(): Flow<Int> = cuarentenaDao.observePendienteCount()
+    override fun observePendienteCount(): Flow<Int> = quarantineDao.observePendienteCount()
     
-    override fun observeConflictoCount(): Flow<Int> = cuarentenaDao.observeConflictoCount()
+    override fun observeConflictoCount(): Flow<Int> = quarantineDao.observeConflictoCount()
 
     private fun NormativeFragmentEntity.toInvestigado() = FragmentoInvestigado(
         contenido = content,

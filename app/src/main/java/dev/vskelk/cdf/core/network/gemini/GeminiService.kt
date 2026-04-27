@@ -49,9 +49,19 @@ class GeminiService @Inject constructor() {
                 )
             }
 
+            val officialTopics = """
+                Temario Oficial SPEN-INE 2026:
+                1. Estructura INE
+                2. Preparación (Casillas, Materiales)
+                3. Justicia Electoral y Delitos Electorales
+                4. Resultados Electorales
+                5. Marco Normativo (Leyes, Reglamentos, Acuerdos, Constitución)
+            """.trimIndent()
+
             val fullPrompt = buildString {
                 append("SISTEMA: Bozal de Hierro activado.\n")
-                append("RESTRICCIÓN: Solo responde temas del temario SPEN-INE 2026.\n")
+                append(officialTopics + "\n")
+                append("RESTRICCIÓN: Solo responde temas del temario oficial SPEN-INE 2026.\n")
                 append("Si la consulta es ajena al temario, responde exactamente: '⛔ Consulta fuera del temario oficial SPEN...'.\n")
                 append("REQUISITO: Cita siempre Artículo y Ley fuente.\n\n")
                 append(prompt)
@@ -135,6 +145,15 @@ class GeminiService @Inject constructor() {
                 )
             }
 
+            val officialTopics = """
+                Temario Oficial SPEN-INE 2026:
+                1. Estructura INE
+                2. Preparación (Casillas, Materiales)
+                3. Justicia Electoral y Delitos Electorales
+                4. Resultados Electorales
+                5. Marco Normativo (Leyes, Reglamentos, Acuerdos, Constitución)
+            """.trimIndent()
+
             val fullPrompt = buildString {
                 append("Responde ÚNICAMENTE con un objeto JSON válido. No incluyas explicaciones ni markdown.\n\n")
                 append(prompt)
@@ -160,8 +179,9 @@ class GeminiService @Inject constructor() {
                     parts = listOf(
                         GeminiPart(
                             text = """
-                                Eres un asistente experto en el temario SPEN-INE 2026. 
-                                RESTRICCIÓN: Solo responde temas del temario oficial. 
+                                Eres un asistente experto en el temario SPEN-INE 2026.
+                                $officialTopics
+                                RESTRICCIÓN: Solo responde temas del temario oficial.
                                 Si la consulta es ajena, responde: '⛔ Consulta fuera del temario oficial SPEN...'.
                                 Todas las respuestas deben citar Artículo y Ley fuente.
                                 Responde SOLO con JSON válido que incluya un 'confidence_score'.

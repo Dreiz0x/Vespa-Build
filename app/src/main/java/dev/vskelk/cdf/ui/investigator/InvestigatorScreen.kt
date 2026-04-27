@@ -28,7 +28,9 @@ fun InvestigatorScreen(
 ) {
     var query by remember { mutableStateOf("") }
     val selectedFilter by viewModel.selectedFilter.collectAsState()
+    val query by viewModel.query.collectAsState()
     val ingestionState by viewModel.ingestionState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
 
     val filePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -99,7 +101,7 @@ fun InvestigatorScreen(
             // Campo de consulta
             OutlinedTextField(
                 value = query,
-                onValueChange = { query = it },
+                onValueChange = { viewModel.setQuery(it) },
                 placeholder = {
                     Text(
                         text = stringResource(R.string.investigator_query_hint),
@@ -115,11 +117,21 @@ fun InvestigatorScreen(
                     unfocusedTextColor = VespaOnSurface
                 ),
                 trailingIcon = {
-                    IconButton(onClick = { /* Lógica de investigación IA */ }) {
-                        Icon(Icons.Default.Send, contentDescription = "Enviar", tint = VespaPrimary)
+                    IconButton(
+                        onClick = { viewModel.investigar() },
+                        enabled = uiState != InvestigatorUiState.Loading
+                    ) {
+                        when (uiState) {
+                            is InvestigatorUiState.Loading -> CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                color = VespaPrimary
+                            )
+                            else -> Icon(Icons.Default.Send, contentDescription = "Enviar", tint = VespaPrimary)
+                        }
                     }
                 },
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                enabled = uiState != InvestigatorUiState.Loading
             )
 
             Spacer(modifier = Modifier.height(24.dp))
