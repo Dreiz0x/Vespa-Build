@@ -198,7 +198,7 @@ object NivelCognitivo {
     /**
      * Los reactivos del SPE se concentran en APLICACION y ANALISIS
      */
-    val nivelesAvanzados = setOf(APLICACION, ANALISIS)
+    @androidx.room.Ignore val nivelesAvanzados = setOf(APLICACION, ANALISIS)
 }
 
 /**
