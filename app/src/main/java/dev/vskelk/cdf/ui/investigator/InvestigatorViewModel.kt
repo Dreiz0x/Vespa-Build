@@ -1,6 +1,7 @@
 package dev.vskelk.cdf.ui.investigator
 
 import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tom_roush.pdfbox.android.PDFBoxResourceLoader
@@ -8,21 +9,15 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dev.vskelk.cdf.core.database.dao.NormativeDao
 import dev.vskelk.cdf.core.database.dao.QuarantineDao
-import dev.vskelk.cdf.core.database.entity.ExtractionCertainty
-import dev.vskelk.cdf.core.database.entity.NormativeFragmentEntity
-import dev.vskelk.cdf.core.database.entity.QuarantineEntity
-import dev.vskelk.cdf.core.database.entity.SourceType
 import dev.vskelk.cdf.core.datastore.PreferencesDataSource
-import dev.vskelk.cdf.core.domain.model.InvestigacionEstado
-import dev.vskelk.cdf.core.domain.model.InvestigacionResult
 import dev.vskelk.cdf.core.network.gemini.GeminiService
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.json.JSONObject
 import javax.inject.Inject
 
 @HiltViewModel
@@ -34,52 +29,52 @@ class InvestigatorViewModel @Inject constructor(
     private val geminiService: GeminiService
 ) : ViewModel() {
 
-    private val _investigationState = MutableStateFlow<InvestigacionEstado>(InvestigacionEstado.Idle)
-    val investigationState: StateFlow<InvestigacionEstado> = _investigationState.asStateFlow()
+    private val _uiState = MutableStateFlow<InvestigatorUiState>(InvestigatorUiState.Idle)
+    val uiState: StateFlow<InvestigatorUiState> = _uiState.asStateFlow()
 
     private val _query = MutableStateFlow("")
     val query: StateFlow<String> = _query.asStateFlow()
+
+    private val _selectedFilter = MutableStateFlow("Todas")
+    val selectedFilter: StateFlow<String> = _selectedFilter.asStateFlow()
+
+    private val _ingestionState = MutableStateFlow<IngestionState>(IngestionState.Idle)
+    val ingestionState: StateFlow<IngestionState> = _ingestionState.asStateFlow()
 
     init {
         PDFBoxResourceLoader.init(context)
     }
 
-    fun investigar(prompt: String, pdfBytes: ByteArray?) {
-        _investigationState.value = InvestigacionEstado.Acotando("Iniciando investigación...")
+    fun setQuery(newQuery: String) { _query.value = newQuery }
+    fun setFilter(filter: String) { _selectedFilter.value = filter }
+
+    fun investigar() {
+        _uiState.value = InvestigatorUiState.Loading
         viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val apiKey = preferencesDataSource.getApiKey("GEMINI") ?: return@launch
-                val result = geminiService.generateStructuredJson(apiKey, "$prompt\n\n${_query.value}", pdfBytes)
-
-                result.onSuccess { jsonString ->
-                    withContext(Dispatchers.Main) {
-                        val json = JSONObject(jsonString)
-                        val confidence = json.optDouble("confidence_score", 0.0).toFloat()
-                        val area = json.optString("spen_area", "SIN_CLASIFICAR")
-
-                        if (confidence < 0.85f) {
-                            quarantineDao.insertQuarantine(QuarantineEntity(
-                                rawContent = jsonString, confidence = confidence,
-                                spenArea = area, status = "PENDING_VALIDATION",
-                                timestamp = System.currentTimeMillis()
-                            ))
-                            _investigationState.value = InvestigacionEstado.Validando("Baja confianza: $confidence")
-                        } else {
-                            normativeDao.insertFragment(NormativeFragmentEntity(
-                                source = "Gemini", content = jsonString, articleRef = "Investigación",
-                                status = "VIGENTE", sourceType = SourceType.LEY,
-                                certainty = ExtractionCertainty.ALTA.name, areaExamen = area,
-                                vigenciaDesde = System.currentTimeMillis()
-                            ))
-                            _investigationState.value = InvestigacionEstado.Completado(InvestigacionResult(jsonString, confidence))
-                        }
-                    }
-                }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    _investigationState.value = InvestigacionEstado.Error(e.message ?: "Error desconocido")
-                }
-            }
+            delay(1000)
+            withContext(Dispatchers.Main) { _uiState.value = InvestigatorUiState.Success("Funcion en desarrollo") }
         }
     }
+
+    fun ingestPdf(uri: Uri) {
+        _ingestionState.value = IngestionState.Processing("PDF", 0)
+        viewModelScope.launch(Dispatchers.IO) {
+            delay(2000)
+            withContext(Dispatchers.Main) { _ingestionState.value = IngestionState.Success("PDF", 1) }
+        }
+    }
+}
+
+sealed interface InvestigatorUiState {
+    data object Idle : InvestigatorUiState
+    data object Loading : InvestigatorUiState
+    data class Success(val message: String) : InvestigatorUiState
+    data class Error(val message: String) : InvestigatorUiState
+}
+
+sealed interface IngestionState {
+    data object Idle : IngestionState
+    data class Processing(val fileName: String, val blocks: Int) : IngestionState
+    data class Success(val fileName: String, val totalBlocks: Int) : IngestionState
+    data class Error(val message: String) : IngestionState
 }

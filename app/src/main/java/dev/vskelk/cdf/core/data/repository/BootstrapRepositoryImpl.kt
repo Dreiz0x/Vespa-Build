@@ -76,7 +76,6 @@ class BootstrapRepositoryImpl @Inject constructor(
                     articleRef = frag.article_ref, 
                     sourceType = src?.type ?: "LEY", 
                     certainty = ExtractionCertainty.ALTA, 
-                    areaExamen = "TECNICO", 
                     versionId = frag.version_id, 
                     vigenciaDesde = frag.vigencia_desde, 
                     vigenciaHasta = frag.vigencia_hasta, 
@@ -92,11 +91,9 @@ class BootstrapRepositoryImpl @Inject constructor(
         val nodes = loadOntologiaNodes()
         ontologyDao.insertCargo(
             CargoEntity(
-                id = 1, 
+                id = "1", 
                 nombre = "VOE", 
                 descripcion = "Vocalía de Organización Electoral", 
-                areaExamen = "TECNICO", 
-                nivel = "Distrital", 
                 isDefault = true
             )
         )

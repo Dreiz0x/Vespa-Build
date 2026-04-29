@@ -99,7 +99,7 @@ class AdaptiveRepositoryImpl @Inject constructor(
         val reactivo = reactivoDao.getReactivoById(reactivoId) ?: return
         val selectedOption = reactivoDao.getOptionById(selectedOptionId)
         
-        val resolvedErrorType = errorType ?: selectedOption?.distractorTipo?.let { ErrorType.fromDistractor(it) }
+        val resolvedErrorType = errorType ?: selectedOption?.distractorTipo
         
         val intento = ReactivoIntentoEntity(
             sessionId = sessionId,
@@ -110,7 +110,12 @@ class AdaptiveRepositoryImpl @Inject constructor(
             errorType = resolvedErrorType
         )
         reactivoDao.insertIntento(intento)
-        userMasteryDao.recordAttemptAndUpdateMastery(subtemaId = reactivo.subtemaId, isCorrect = isCorrect, tiempoRespuestaMs = tiempoRespuestaMs)
+        userMasteryDao.recordAttemptAndUpdateMastery(
+    subtemaId = reactivo.subtemaId,
+    precision = if (isCorrect) 1.0f else 0.0f,
+    velocidadPromedio = tiempoRespuestaMs.toFloat(),
+    estadoDominio = if (isCorrect) "DOMINADO" else "INESTABLE"
+)
         
         if (!isCorrect && resolvedErrorType != null) {
             val gapLog = UserGapLogEntity(subtemaId = reactivo.subtemaId, errorType = resolvedErrorType, reactivoId = reactivoId, sessionId = sessionId)
@@ -166,8 +171,8 @@ class AdaptiveRepositoryImpl @Inject constructor(
             sessionId = sessionId,
             correctos = correctos,
             tiempoPromedioSeg = tiempoPromedio,
-            weakSubtemas = distinctWeakSubtemas,
-            dominantErrors = dominantErrors
+            weakSubtemas = distinctWeakSubtemas.joinToString(","),
+            dominantErrors = dominantErrors.joinToString(",")
         )
 
         return SesionResultado(

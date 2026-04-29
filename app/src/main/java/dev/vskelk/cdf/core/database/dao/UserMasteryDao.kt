@@ -7,55 +7,53 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface UserMasteryDao {
 
-    @Query("SELECT * FROM user_topic_mastery WHERE topicId = :topicId")
-    suspend fun getTopicMasteryByTopicId(topicId: String): UserTopicMasteryEntity?
+    @Query("SELECT * FROM user_topic_mastery WHERE subtemaId = :subtemaId")
+    suspend fun getMasteryBySubtemaId(subtemaId: Long): UserTopicMasteryEntity?
+
+    @Query("SELECT * FROM user_topic_mastery WHERE estadoDominio = :estado")
+    fun getMasteryByState(estado: String): Flow<List<UserTopicMasteryEntity>>
+
+    @Query("SELECT * FROM user_topic_mastery WHERE estadoDominio IN (:estados)")
+    fun getMasteryByStates(estados: List<String>): Flow<List<UserTopicMasteryEntity>>
+
+    @Query("SELECT * FROM user_topic_mastery")
+    fun observeAllMastery(): Flow<List<UserTopicMasteryEntity>>
+
+    @Query("SELECT COUNT(*) FROM user_topic_mastery")
+    suspend fun getMasteryCount(): Int
+
+    @Query("SELECT * FROM user_topic_mastery WHERE precision < :threshold ORDER BY precision ASC LIMIT :limit")
+    suspend fun getWeakSubtemas(threshold: Float, limit: Int): List<UserTopicMasteryEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertTopicMastery(userTopicMastery: UserTopicMasteryEntity)
+    suspend fun insertMastery(mastery: UserTopicMasteryEntity)
 
     @Update
-    suspend fun updateTopicMastery(userTopicMastery: UserTopicMasteryEntity)
+    suspend fun updateMastery(mastery: UserTopicMasteryEntity)
 
-    @Query("SELECT * FROM user_topic_mastery WHERE userId = :userId")
-    fun getUserTopicMasteries(userId: String): Flow<List<UserTopicMasteryEntity>>
+    @Query("UPDATE user_topic_mastery SET precision = :precision, totalIntentos = totalIntentos + 1, velocidadPromedio = :velocidadPromedio, estadoDominio = :estadoDominio, lastReviewed = :timestamp WHERE subtemaId = :subtemaId")
+    suspend fun recordAttemptAndUpdateMastery(
+        subtemaId: Long,
+        precision: Float,
+        velocidadPromedio: Float,
+        estadoDominio: String,
+        timestamp: Long = System.currentTimeMillis()
+    )
 
-    @Query("SELECT * FROM user_topic_mastery WHERE topicId = :topicId")
-    fun getUserTopicMasteryByTopicIdFlow(topicId: String): Flow<UserTopicMasteryEntity?>
-
-    @Query("SELECT COUNT(*) FROM user_topic_mastery WHERE estadoDominio = :estadoDominio")
-    fun getCountByEstadoDominio(estadoDominio: String): Flow<Int>
-
-    @Query("SELECT AVG(precision) FROM user_topic_mastery WHERE topicId = :topicId")
-    fun getAveragePrecision(topicId: String): Flow<Double?>
-
-    @Query("SELECT SUM(totalIntentos) FROM user_topic_mastery WHERE topicId = :topicId")
-    fun getTotalIntentos(topicId: String): Flow<Int?>
-
-    @Query("SELECT AVG(velocidadPromedio) FROM user_topic_mastery WHERE topicId = :topicId")
-    fun getAverageVelocidadPromedio(topicId: String): Flow<Double?>
-
-
-    // UserGapLogEntity methods
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertGapLog(userGapLogEntity: UserGapLogEntity)
+    suspend fun insertGapLog(gapLog: UserGapLogEntity)
+
+    @Query("SELECT * FROM user_gap_logs WHERE subtemaId = :subtemaId")
+    fun getGapLogsBySubtema(subtemaId: Long): Flow<List<UserGapLogEntity>>
+
+    @Query("SELECT errorType, COUNT(*) as count FROM user_gap_logs GROUP BY errorType ORDER BY count DESC LIMIT :limit")
+    suspend fun getGlobalErrorTypeCounts(limit: Int = 10): List<ErrorTypeCount>
+
+    @Query("SELECT COUNT(DISTINCT subtemaId) FROM user_gap_logs")
+    fun observeAffectedSubtemaCount(): Flow<Int>
 
     @Query("SELECT * FROM user_gap_logs")
     suspend fun getAllUserGapLogs(): List<UserGapLogEntity>
-
-    @Query("SELECT * FROM user_gap_logs WHERE topicId = :topicId")
-    fun getUserGapLogsByTopicIdFlow(topicId: String): Flow<List<UserGapLogEntity>>
-
-    @Query("SELECT errorType, COUNT(*) as count FROM user_gap_logs GROUP BY errorType")
-    fun getErrorTypeCount(): Flow<List<ErrorTypeCount>>
-
-    @Query("SELECT COUNT(*) FROM user_gap_logs")
-    fun getStudySessionCount(): Flow<Int>
-
-    @Query("SELECT COUNT(DISTINCT topicId) FROM user_gap_logs")
-    fun getFragmentCount(): Flow<Int>
-
-    @Query("SELECT * FROM user_gap_logs WHERE topicId = :topicId AND errorType = :errorType")
-    suspend fun getUserGapLogByTopicAndError(topicId: String, errorType: String): UserGapLogEntity?
 }
 
 data class ErrorTypeCount(

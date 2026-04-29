@@ -6,29 +6,33 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "study_sessions")
 data class StudySessionEntity(
     @PrimaryKey(autoGenerate = true) val sessionId: Long = 0,
-    val topicId: String,
-    val subtemaId: String = "",
-    val startTime: Long,
-    val endTime: Long? = null,
-    val score: Float = 0f
+    val modulo: String = "",
+    val examArea: String? = null,
+    val startedAt: Long = System.currentTimeMillis(),
+    val completedAt: Long? = null,
+    val correctos: Int = 0,
+    val totalReactivos: Int = 0,
+    val tiempoPromedioSeg: Float = 0f,
+    val weakSubtemas: String? = null,
+    val dominantErrors: String? = null
 )
 
 @Entity(tableName = "user_topic_mastery")
 data class UserTopicMasteryEntity(
-    @PrimaryKey val subtemaId: String,
-    val topicId: String = "",
-    val masteryLevel: Float = 0f,
+    @PrimaryKey val subtemaId: Long,
+    val estadoDominio: String = "NO_VISTO",
     val precision: Float = 0f,
-    val estadoDominio: Int = 0,
+    val totalIntentos: Int = 0,
+    val velocidadPromedio: Float = 0f,
     val lastReviewed: Long = 0
 )
 
-@Entity(tableName = "user_gap_log")
+@Entity(tableName = "user_gap_logs")
 data class UserGapLogEntity(
     @PrimaryKey(autoGenerate = true) val gapId: Long = 0,
-    val topicId: String,
-    val subtemaId: String = "",
+    val subtemaId: Long,
     val errorType: String = "",
-    val errorCount: Int = 0,
-    val timestamp: Long
+    val reactivoId: Long = 0,
+    val sessionId: Long = 0,
+    val timestamp: Long = System.currentTimeMillis()
 )

@@ -10,22 +10,12 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class SessionSummary(
-    val id: Long,
-    val correctos: Int,
-    val total: Int,
-    val modulo: String
-)
+data class SessionSummary(val sessionId: Long, val correctos: Int, val total: Int, val modulo: String)
 
 data class MainUiState(
-    val isLoading: Boolean = true,
-    val progresoGeneral: Int = 0,
-    val brechasDetectadas: Int = 0,
-    val sesionesCompletadas: Int = 0,
-    val subtemasDominados: Int = 0,
-    val corpusVersion: String = "2.0.0",
-    val pendientesInvestigador: Int = 0,
-    val recientes: List<SessionSummary> = emptyList()
+    val isLoading: Boolean = true, val progresoGeneral: Int = 0, val brechasDetectadas: Int = 0,
+    val sesionesCompletadas: Int = 0, val subtemasDominados: Int = 0, val corpusVersion: String = "2.0.0",
+    val pendientesInvestigador: Int = 0, val recientes: List<SessionSummary> = emptyList()
 )
 
 @HiltViewModel
@@ -42,10 +32,7 @@ class MainViewModel @Inject constructor(
             bootstrapRepository.bootstrapState.collect { state ->
                 when (state) {
                     is BootstrapState.Seeding -> _uiState.update { it.copy(isLoading = true) }
-                    is BootstrapState.Ready -> {
-                        _uiState.update { it.copy(isLoading = false) }
-                        loadStats()
-                    }
+                    is BootstrapState.Ready -> { _uiState.update { it.copy(isLoading = false) }; loadStats() }
                     is BootstrapState.Error -> _uiState.update { it.copy(isLoading = false) }
                     else -> Unit
                 }
@@ -58,34 +45,17 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val stats = adaptiveRepository.getOverallStats()
-                _uiState.update {
-                    it.copy(
-                        progresoGeneral = (stats.precisionGeneral * 100).toInt(),
-                        brechasDetectadas = stats.brechasActivas,
-                        sesionesCompletadas = stats.totalSesiones,
-                        subtemasDominados = stats.subtemasDominados,
-                        isLoading = false
-                    )
-                }
+                _uiState.update { it.copy(progresoGeneral = (stats.precisionGeneral * 100).toInt(), brechasDetectadas = stats.brechasActivas, sesionesCompletadas = stats.totalSesiones, subtemasDominados = stats.subtemasDominados, isLoading = false) }
             } catch (e: Exception) {
                 _uiState.update { it.copy(isLoading = false) }
             }
         }
-
         viewModelScope.launch {
             adaptiveRepository.observeRecentSessions(5).collect { sessions ->
-                _uiState.update { state ->
-                    state.copy(recientes = sessions.map { s -> 
-                        // ⚡ CORREGIDO: Usando 's' en lugar de 'it'
-                        SessionSummary(s.id, s.correctos, s.totalReactivos, s.modulo) 
-                    })
-                }
+                _uiState.update { state -> state.copy(recientes = sessions.map { s -> SessionSummary(s.sessionId, s.correctos, s.totalReactivos, s.modulo) }) }
             }
         }
     }
 
-    fun refresh() {
-        _uiState.update { it.copy(isLoading = true) }
-        loadStats()
-    }
+    fun refresh() { _uiState.update { it.copy(isLoading = true) }; loadStats() }
 }
