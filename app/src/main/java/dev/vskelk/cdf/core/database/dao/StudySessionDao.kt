@@ -28,11 +28,13 @@ interface StudySessionDao {
     @Query("SELECT AVG(CAST(correctos AS FLOAT) / CAST(totalReactivos AS FLOAT)) FROM study_sessions WHERE completedAt IS NOT NULL AND totalReactivos > 0")
     suspend fun getOverallAccuracy(): Float?
 
-    @Query("UPDATE study_sessions SET completedAt = :completedAt, correctos = :correctos, tiempoPromedioSeg = :tiempoPromedioSeg WHERE sessionId = :sessionId")
+    @Query("UPDATE study_sessions SET completedAt = :completedAt, correctos = :correctos, tiempoPromedioSeg = :tiempoPromedioSeg, weakSubtemas = :weakSubtemas, dominantErrors = :dominantErrors WHERE sessionId = :sessionId")
     suspend fun completeSession(
         sessionId: Long,
         correctos: Int,
         tiempoPromedioSeg: Float,
+        weakSubtemas: String,
+        dominantErrors: String,
         completedAt: Long = System.currentTimeMillis()
     )
 }

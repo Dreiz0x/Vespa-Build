@@ -171,8 +171,8 @@ class AdaptiveRepositoryImpl @Inject constructor(
             sessionId = sessionId,
             correctos = correctos,
             tiempoPromedioSeg = tiempoPromedio,
-            weakSubtemas = distinctWeakSubtemas.joinToString(","),
-            dominantErrors = dominantErrors.joinToString(",")
+            weakSubtemas = distinctWeakSubtemas.joinToString(separator = ","),
+            dominantErrors = dominantErrors.joinToString(separator = ",")
         )
 
         return SesionResultado(

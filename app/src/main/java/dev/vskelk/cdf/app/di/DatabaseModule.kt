@@ -11,6 +11,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dev.vskelk.cdf.core.database.AppDatabase
 import dev.vskelk.cdf.core.database.dao.*
+import dev.vskelk.cdf.core.database.dao.OntologyDao
 import javax.inject.Singleton
 
 /**
@@ -42,6 +43,10 @@ object DatabaseModule {
     }
 
     // ===== DAOs =====
+
+    @Provides
+    @Singleton
+    fun provideOntologyDao(database: AppDatabase): OntologyDao = database.ontologyDao()
 
     // No change needed here, already correct
 
